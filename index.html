@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ritm">
+<meta name="theme-color" content="#0b110f">
+<title>Ritm — kun tartibim</title>
+<link rel="apple-touch-icon" id="touchIcon" href="">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --night:#0b110f; --deep:#111a17; --panel:#17231f; --panel2:#1e2c27;
+  --line:rgba(232,218,184,.10); --sand:#efe6d2; --mist:#a8ad9c; --dim:#6b7364;
+  --sun:#d4af6a; --sun2:#ecd49c; --sky:#86b4c4; --lilac:#c49bbb; --teal:#5fbf95; --rose:#d4806c;
+  --font:"Manrope", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; --serif:"Fraunces", Georgia, "Times New Roman", serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{box-sizing:inherit;margin:0;padding:0}
+html{background:var(--night);scroll-padding-top:env(safe-area-inset-top,0px);-webkit-text-size-adjust:100%}
+body{background:var(--night);color:var(--sand);font-family:var(--font);font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased;min-height:100%;overflow-x:hidden}
+body::before{content:"";position:fixed;left:50%;top:-180px;width:720px;height:520px;transform:translateX(-50%);
+  background:radial-gradient(closest-side,rgba(212,175,106,.16),rgba(95,191,149,.06) 55%,transparent);pointer-events:none;z-index:0}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer;-webkit-tap-highlight-color:transparent}
+a{color:var(--sky)}
+:focus-visible{outline:2px solid var(--sun);outline-offset:2px;border-radius:8px}
+.app{position:relative;z-index:1;max-width:540px;margin:0 auto;padding:14px 16px 140px}
+
+.top{display:flex;justify-content:space-between;align-items:center;padding:6px 2px 4px;gap:10px}
+.hello{font-size:15px;color:var(--mist)}
+.hello b{color:var(--sand);font-weight:600}
+.top-r{display:flex;align-items:center;gap:10px}
+.today-date{font-size:13px;color:var(--dim);text-align:right}
+.gear{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--deep);display:grid;place-items:center;color:var(--mist)}
+.gear.on{color:var(--sun);border-color:rgba(212,175,106,.5)}
+.gear svg{width:18px;height:18px}
+
+.dial-wrap{position:relative;width:min(100%,330px);aspect-ratio:1;margin:6px auto 0}
+.dial-wrap svg{width:100%;height:100%;display:block}
+.dial-center{position:absolute;inset:22%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.dial-clock{font-size:52px;font-weight:700;letter-spacing:-.04em;line-height:1;font-variant-numeric:tabular-nums}
+.dial-clock span{font-size:18px;color:var(--mist);font-weight:500;margin-left:3px;letter-spacing:0}
+.dial-now{margin-top:8px;font-size:15px;font-weight:600;max-width:170px;line-height:1.25}
+.dial-left{margin-top:4px;font-size:13px;color:var(--mist);font-variant-numeric:tabular-nums}
+.sun-dot{filter:drop-shadow(0 0 8px rgba(236,212,156,.9))}
+@keyframes pulse{0%,100%{r:9}50%{r:11}}
+.sun-dot circle.core{animation:pulse 2.4s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){.sun-dot circle.core{animation:none}}
+
+.next-line{display:flex;justify-content:center;gap:8px;align-items:center;margin:2px 0 18px;font-size:14px;color:var(--mist);flex-wrap:wrap;text-align:center}
+.next-line b{color:var(--sand);font-weight:600}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:99px;background:var(--panel);border:1px solid var(--line);font-size:13px}
+.back-today{background:var(--sun);color:#1d1606;border:0;font-weight:700;padding:8px 14px;border-radius:99px}
+
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin:0 0 20px}
+.wd{background:transparent;border:1px solid var(--line);border-radius:14px;padding:8px 0 7px;text-align:center;color:var(--mist);font-size:12px;transition:background .2s,border-color .2s;position:relative}
+.wd b{display:block;font-size:18px;color:var(--sand);font-weight:600;line-height:1.2;font-variant-numeric:tabular-nums}
+.wd i{display:block;width:5px;height:5px;border-radius:50%;margin:4px auto 0;background:var(--dim)}
+.wd.off::after{content:"";position:absolute;top:5px;right:6px;width:5px;height:5px;border-radius:50%;background:var(--teal)}
+.wd.is-today{border-color:rgba(212,175,106,.55)}
+.wd.is-sel{background:var(--sand);color:#3a3340;border-color:var(--sand)}
+.wd.is-sel b{color:var(--night)}
+
+.sec{margin:26px 0 10px;display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.sec h2{font-size:22px;font-weight:700;letter-spacing:-.02em}
+.sec span{font-size:13px;color:var(--mist)}
+.box{background:var(--deep);border:1px solid var(--line);border-radius:20px;padding:16px}
+.box + .box{margin-top:10px}
+.muted{color:var(--mist)}
+.small{font-size:13px}
+.warn{background:rgba(212,128,108,.1);border:1px solid rgba(212,128,108,.35);color:#f0c3b6;border-radius:14px;padding:10px 12px;font-size:13px;margin-bottom:10px}
+
+.shift{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+.shift small{display:block;color:var(--mist);font-size:12px}
+.shift b{font-size:18px;font-variant-numeric:tabular-nums}
+.tag{display:inline-block;margin-left:8px;font-size:11px;padding:2px 8px;border-radius:99px;background:rgba(134,180,196,.15);color:var(--sky);vertical-align:middle}
+.sbtn{padding:9px 14px;border-radius:12px;border:1px solid var(--line);background:var(--panel);font-size:13px;font-weight:600;white-space:nowrap}
+.shift-edit{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:-2px 0 10px}
+.shift-edit label{font-size:12px;color:var(--mist);display:flex;flex-direction:column;gap:4px}
+.shift-edit input{padding:9px 10px;border-radius:12px;border:1px solid var(--line);background:var(--panel);font-size:15px}
+.shift-edit .row{grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap}
+
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:var(--deep);border:1px solid var(--line);border-radius:18px;padding:12px}
+.stat small{display:block;color:var(--mist);font-size:12px}
+.stat b{display:block;font-size:20px;font-weight:700;margin-top:2px;letter-spacing:-.02em;font-variant-numeric:tabular-nums;white-space:nowrap}
+
+.tips{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.tip{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:16px;background:linear-gradient(120deg,rgba(212,175,106,.10),rgba(196,155,187,.06));border:1px solid rgba(212,175,106,.18);font-size:14px}
+.tip span{font-size:18px;line-height:1.2}
+
+.hc{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
+.hc:last-of-type{border-bottom:0}
+.hc i{flex:none;width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-size:12px;font-weight:800;margin-top:1px}
+.hc i.ok{background:rgba(95,191,149,.18);color:var(--teal)}
+.hc i.no{background:rgba(212,175,106,.18);color:var(--sun)}
+details.why{margin-top:10px;border-top:1px solid var(--line);padding-top:10px}
+details.why summary{cursor:pointer;font-weight:600;font-size:14px;color:var(--sun2);list-style:none}
+details.why summary::-webkit-details-marker{display:none}
+details.why p{font-size:14px;color:var(--mist);margin-top:8px}
+
+.tl-item{display:grid;grid-template-columns:50px 1fr 30px;gap:12px;align-items:start;padding:12px 4px 12px 0;position:relative;width:100%;text-align:left;background:none;border:0}
+.tl-item::before{content:"";position:absolute;left:62px;top:0;bottom:0;width:2px;background:var(--line)}
+.tl-time{font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;padding-top:1px}
+.tl-time small{display:block;font-size:11px;color:var(--dim);font-weight:500}
+.tl-body{position:relative;padding-left:16px;min-width:0}
+.tl-body::before{content:"";position:absolute;left:-1px;top:6px;width:10px;height:10px;border-radius:50%;background:var(--c,var(--dim));box-shadow:0 0 0 4px var(--deep)}
+.tl-title{font-weight:600;font-size:15px}
+.tl-sub{font-size:13px;color:var(--mist);margin-top:2px}
+.tl-check{width:26px;height:26px;border-radius:50%;border:2px solid var(--dim);display:grid;place-items:center;margin-top:1px;transition:background .2s,border-color .2s;background:none;flex:none}
+.tl-check svg{opacity:0;width:14px;height:14px}
+.done > .tl-check,.tl-item.done .tl-check{background:var(--teal);border-color:var(--teal)}
+.done > .tl-check svg,.tl-item.done .tl-check svg{opacity:1}
+.tl-item.done .tl-title{text-decoration:line-through;text-decoration-color:var(--dim)}
+.tl-item.past:not(.done){opacity:.5}
+.tl-item.cur{background:linear-gradient(90deg,rgba(212,175,106,.12),transparent 80%);border-radius:14px}
+.tl-item.cur .tl-time{color:var(--sun)}
+.tl-item.cur .tl-body::before{box-shadow:0 0 0 4px var(--deep),0 0 14px 3px var(--sun);background:var(--sun)}
+.tl-bar{height:3px;border-radius:3px;background:var(--line);margin-top:8px;overflow:hidden}
+.tl-bar i{display:block;height:100%;background:var(--sun)}
+
+.water{display:flex;align-items:center;gap:12px}
+.drops{display:flex;flex-wrap:wrap;gap:6px;flex:1}
+.drop{width:24px;height:30px}
+.drop svg{width:100%;height:100%}
+.round{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--panel);font-size:20px;font-weight:600;display:grid;place-items:center;flex:none}
+
+.habit{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 0;border:0;background:none;text-align:left;width:100%;border-bottom:1px solid var(--line)}
+.habit:last-child{border-bottom:0}
+
+.gym-hero{border-radius:24px;padding:20px;background:var(--deep);border:1px solid var(--line);position:relative;overflow:hidden}
+.gym-hero::after{content:"";position:absolute;right:-60px;top:-60px;width:200px;height:200px;border-radius:50%;background:var(--gc,var(--sun));opacity:.16;filter:blur(10px)}
+.gym-day{font-size:13px;color:var(--mist)}
+.gym-name{font-size:40px;font-weight:800;letter-spacing:-.04em;line-height:1;margin:6px 0 4px}
+.gym-title{font-size:16px;opacity:.85}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.chip{font-size:12px;padding:4px 10px;border-radius:99px;background:rgba(239,230,210,.07);border:1px solid var(--line)}
+.prog{height:6px;border-radius:6px;background:rgba(239,230,210,.08);margin-top:14px;overflow:hidden}
+.prog i{display:block;height:100%;background:var(--gc,var(--sun));transition:width .3s}
+
+.ex{border-bottom:1px solid var(--line);padding:14px 0}
+.ex:last-child{border-bottom:0}
+.ex-top{display:grid;grid-template-columns:104px 1fr 30px;gap:12px;align-items:start}
+.fig{width:104px;height:92px;border-radius:14px;background:radial-gradient(circle at 50% 40%,#1c2b25,#111a17);display:block}
+.fig.big{width:100%;height:auto;aspect-ratio:200/178;max-height:260px}
+.ex-name{font-weight:600;line-height:1.25}
+.ex-meta{font-size:13px;color:var(--sun2);margin-top:3px;font-variant-numeric:tabular-nums}
+.ex-act{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;align-items:center}
+.ex-act input{width:64px;padding:6px 8px;border-radius:10px;border:1px solid var(--line);background:var(--panel);font-size:14px}
+.ex-act small{font-size:12px;color:var(--mist)}
+.mini{padding:6px 10px;border-radius:10px;border:1px solid var(--line);background:var(--panel);font-size:12px;font-weight:600}
+.ex.done .ex-name{text-decoration:line-through;text-decoration-color:var(--dim)}
+.how{margin-top:12px;background:var(--panel);border-radius:16px;padding:14px;display:none}
+.ex.open .how{display:block}
+.how h4{font-size:14px;margin:12px 0 6px}
+.how ol,.how ul{padding-left:20px;font-size:14px;color:var(--mist);display:flex;flex-direction:column;gap:5px}
+.how ol li::marker{color:var(--sun);font-weight:700}
+.how ul li::marker{color:var(--rose)}
+.how .yt{display:inline-flex;margin-top:12px;font-size:13px;font-weight:600;color:var(--sun2);text-decoration:none;border:1px solid rgba(236,212,156,.3);padding:7px 12px;border-radius:10px}
+
+.split-row{display:grid;grid-template-columns:46px 1fr;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);align-items:center}
+.split-row:last-child{border-bottom:0}
+.split-row .sw{display:flex;align-items:center;gap:8px}
+.split-row .sw i{width:8px;height:8px;border-radius:50%;flex:none}
+.split-row.on{color:var(--sun)}
+.rules{display:flex;flex-direction:column;gap:10px;font-size:14px}
+.rules div{display:flex;gap:10px}
+.rules div span{color:var(--sun);font-weight:700}
+
+.timer{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:25;background:var(--sun);color:#1d1606;border-radius:99px;padding:8px 8px 8px 18px;display:none;align-items:center;gap:12px;font-weight:700;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+.timer.on{display:flex}
+.timer b{font-size:22px;font-variant-numeric:tabular-nums}
+.timer button{border:0;background:rgba(0,0,0,.15);border-radius:99px;padding:6px 12px;font-weight:700;color:#1d1606}
+
+.lesson{border-radius:24px;padding:20px;background:var(--deep);border:1px solid var(--line);position:relative;overflow:hidden}
+.lesson + .lesson{margin-top:12px}
+.lesson::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--lc)}
+.lesson .lh{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px;color:var(--mist)}
+.lesson h3{font-size:24px;font-weight:700;letter-spacing:-.03em;line-height:1.15;margin:8px 0 12px}
+.lesson ul{padding-left:18px;display:flex;flex-direction:column;gap:8px;font-size:15px}
+.lesson ul li::marker{color:var(--lc)}
+.task{margin-top:14px;padding:12px 14px;border-radius:14px;background:var(--panel);font-size:14px}
+.task b{display:block;font-size:12px;color:var(--lc);margin-bottom:2px}
+.lesson .btn{margin-top:14px;width:100%}
+.donebadge{display:inline-flex;gap:6px;align-items:center;color:var(--teal);font-weight:700;font-size:13px}
+.disc{font-size:12px;color:#f0c3b6;margin-top:10px}
+.course{padding:12px 0;border-bottom:1px solid var(--line)}
+.course:last-child{border-bottom:0}
+.course .ch{display:flex;justify-content:space-between;font-size:14px;font-weight:600}
+.course .prog i{background:var(--lc)}
+.course details{margin-top:8px}
+.course summary{font-size:13px;color:var(--mist);cursor:pointer}
+.ll{font-size:13px;padding:7px 0;border-bottom:1px dashed var(--line);display:flex;gap:8px}
+.ll:last-child{border-bottom:0}
+.ll.d{color:var(--dim);text-decoration:line-through}
+.ll.n{color:var(--sun2);font-weight:600}
+
+.bf{border-radius:24px;padding:20px;background:linear-gradient(150deg,#33291a,#17231f 70%);border:1px solid rgba(212,175,106,.22)}
+.bf h3{font-size:26px;font-weight:700;letter-spacing:-.03em;line-height:1.1;margin:6px 0 8px}
+.bf .p{display:inline-block;margin-top:12px;font-size:13px;font-weight:600;color:#1d1606;background:var(--sun2);padding:5px 10px;border-radius:99px}
+.meal{display:grid;grid-template-columns:52px 1fr;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.meal:last-child{border-bottom:0}
+.meal .t{font-weight:600;font-variant-numeric:tabular-nums}
+
+.big{font-size:44px;font-weight:800;letter-spacing:-.04em;line-height:1}
+.heat{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:12px}
+.heat div{aspect-ratio:1;border-radius:8px;background:var(--panel)}
+.heat div.t{outline:2px solid var(--sun);outline-offset:1px}
+.heat-l{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:6px;font-size:11px;color:var(--dim);text-align:center}
+.row-in{display:flex;gap:8px;margin-top:12px}
+.row-in input{flex:1;min-width:0;padding:11px 12px;border-radius:12px;border:1px solid var(--line);background:var(--panel);font-size:15px}
+.btn{padding:12px 16px;border-radius:14px;border:0;background:var(--sun);color:#1d1606;font-weight:700}
+.btn.ghost{background:var(--panel);color:var(--sand);border:1px solid var(--line)}
+.spark{width:100%;height:110px;margin-top:12px;display:block}
+
+.field{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.field:last-child{border-bottom:0}
+.field label{font-size:14px}
+.field label small{display:block;color:var(--mist);font-size:12px}
+.field input{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:15px;width:118px;text-align:right}
+.field input[type=text]{width:190px;text-align:left}
+.field.col{flex-direction:column;align-items:stretch}
+.daypick{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:8px}
+.daypick.three{grid-template-columns:repeat(3,1fr)}
+.daypick button{padding:9px 0;border-radius:10px;border:1px solid var(--line);background:none;font-size:13px;color:var(--mist)}
+.daypick button.on{background:var(--sky);color:var(--night);border-color:var(--sky);font-weight:700}
+
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));background:rgba(11,17,15,.86);backdrop-filter:blur(18px) saturate(1.4);-webkit-backdrop-filter:blur(18px) saturate(1.4);border-top:1px solid var(--line)}
+.tabs .in{max-width:540px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr)}
+.tabs button{background:none;border:0;color:var(--dim);font-size:11px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0}
+.tabs button svg{width:24px;height:24px}
+.tabs button.on{color:var(--sun)}
+.view{display:none}
+.view.on{display:block;animation:in .25s ease}
+@keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.view.on{animation:none}}
+.toast{position:fixed;left:50%;bottom:calc(140px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(20px);background:var(--sand);color:var(--night);font-weight:600;padding:10px 16px;border-radius:99px;font-size:14px;opacity:0;transition:.25s;z-index:30;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%)}
+
+/* rich theme */
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5;
+  background-image:radial-gradient(rgba(232,218,184,.05) 1px,transparent 1px);background-size:4px 4px}
+.dial-clock,.sec h2,.gym-name,.lesson h3,.bf h3,.big,.stat b,.rank-name,.shift b{font-family:var(--serif);letter-spacing:-.01em}
+.dial-clock{font-weight:600}.sec h2{font-weight:600}.gym-name{font-weight:700}
+.box,.stat,.lesson,.gym-hero{background:linear-gradient(160deg,rgba(255,255,255,.025),transparent 50%),var(--deep)}
+.btn{background:linear-gradient(135deg,#e6c77a,#c39a4c);box-shadow:0 6px 18px rgba(212,175,106,.18)}
+.wd.is-sel{background:linear-gradient(135deg,#e6c77a,#c39a4c);border-color:#d4af6a;color:#1d1606}
+.rank-card{border-radius:26px;padding:20px;background:radial-gradient(120% 90% at 100% 0%,rgba(212,175,106,.18),transparent 55%),linear-gradient(160deg,#1a2822,#0f1714);border:1px solid rgba(212,175,106,.35);text-align:center;position:relative;overflow:hidden}
+.pogon{width:100%;max-width:300px;height:auto;display:block;margin:4px auto 12px;filter:drop-shadow(0 8px 18px rgba(0,0,0,.45))}
+.rank-sub{font-size:12px;color:var(--sun2);letter-spacing:.08em}
+.rank-name{font-size:30px;font-weight:600;line-height:1.15;margin:4px 0 6px}
+.id-row{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--mist);margin-bottom:14px}
+.id-row b{color:var(--sand)}
+.xpbar{height:8px;border-radius:8px;background:rgba(239,230,210,.08);overflow:hidden}
+.xpbar i{display:block;height:100%;background:linear-gradient(90deg,#c39a4c,#ecd49c);border-radius:8px}
+.xp-row{display:flex;justify-content:space-between;font-size:12px;color:var(--mist);margin-top:6px;gap:8px}
+.chal{display:flex;gap:12px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line)}
+.chal .ci{font-size:20px}.chal .ct{flex:1;font-size:14px}
+.chal.done .ct{color:var(--mist);text-decoration:line-through}
+.badges{display:grid;grid-template-columns:repeat(4,1fr);gap:12px 8px}
+.badge{text-align:center;font-size:11px;line-height:1.25}
+.badge .b{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;margin:0 auto 6px;font-size:24px;background:var(--panel);border:1px solid var(--line);filter:grayscale(1);opacity:.4}
+.badge b{display:block;font-size:12px}.badge small{color:var(--dim)}
+.badge.on .b{filter:none;opacity:1;border-color:var(--sun);box-shadow:0 0 18px rgba(212,175,106,.3)}
+.res-links{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.lnk{font-size:13px;font-weight:600;color:var(--sun2);text-decoration:none;border:1px solid rgba(236,212,156,.3);padding:7px 12px;border-radius:10px}
+.pmini{display:grid;grid-template-columns:84px 1fr;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+.pmini .fig{width:84px;height:74px}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div class="hello" id="hello"></div>
+    <div class="top-r"><div class="today-date" id="todayDate"></div>
+      <button class="gear" id="gear" data-act="tab" data-t="sozlama" aria-label="Sozlamalar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg></button></div>
+  </div>
+  <div class="dial-wrap">
+    <svg id="dial" viewBox="0 0 320 320" aria-label="24 soatlik kun aylanasi"></svg>
+    <div class="dial-center">
+      <div class="dial-clock" id="clock">00:00</div>
+      <div class="dial-now" id="dialNow"></div>
+      <div class="dial-left" id="dialLeft"></div>
+    </div>
+  </div>
+  <div class="next-line" id="nextLine"></div>
+  <div class="week" id="week"></div>
+
+  <section class="view on" id="v-bugun"></section>
+  <section class="view" id="v-zal"></section>
+  <section class="view" id="v-oqish"></section>
+  <section class="view" id="v-ovqat"></section>
+  <section class="view" id="v-profil"></section>
+  <section class="view" id="v-sozlama"></section>
+</div>
+<div class="timer" id="timer"><span>Dam</span><b id="timerT">0:00</b><button data-act="tstop">To'xtatish</button></div>
+<nav class="tabs" aria-label="Bo'limlar"><div class="in" id="tabs"></div></nav>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================= helpers ================= */
+const $ = s => document.querySelector(s);
+const pad = n => String(n).padStart(2, "0");
+const toMin = t => { const [a, b] = String(t || "0:0").split(":").map(Number); return (a || 0) * 60 + (b || 0); };
+const fmt = m => { m = ((Math.round(m) % 1440) + 1440) % 1440; return pad(Math.floor(m / 60)) + ":" + pad(m % 60); };
+const dur = m => { m = Math.max(0, Math.round(m)); const h = Math.floor(m / 60), r = m % 60; return h ? (r ? `${h} soat ${r} daq` : `${h} soat`) : `${r} daq`; };
+const dkey = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const CHECK = `<svg viewBox="0 0 24 24" fill="none" stroke="#0b110f" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>`;
+const DAYS = ["Yakshanba", "Dushanba", "Seshanba", "Chorshanba", "Payshanba", "Juma", "Shanba"];
+const DS = ["Ya", "Du", "Se", "Cho", "Pa", "Ju", "Sh"];
+const MONTHS = ["yanvar", "fevral", "mart", "aprel", "may", "iyun", "iyul", "avgust", "sentabr", "oktabr", "noyabr", "dekabr"];
+const COL = { sun: "#d4af6a", sky: "#86b4c4", lilac: "#c49bbb", teal: "#5fbf95", rose: "#d4806c", dim: "#56604f", sleep: "#2c3b45" };
+
+/* ================= storage ================= */
+const STORE = "ritm-v2";
+const DEF = {
+  name: "", wake: "06:30", wakeOff: "07:00", sleepHours: 8,
+  workStart: "11:00", workEnd: "20:00", lunchStart: "15:00", lunchMin: 60, commute: 60,
+  workDays: [0, 1, 2, 3, 4], gymTravel: 15, gymMin: 75, gymMode: "auto",
+  enMin: 30, studyMin: 60, waterGoal: 8, phone: "", age: ""
+};
+function load() { try { const r = localStorage.getItem(STORE); if (r) return JSON.parse(r); } catch (e) {} return null; }
+function save() { try { localStorage.setItem(STORE, JSON.stringify(S)); } catch (e) {} }
+function fresh() { return { settings: { ...DEF }, days: {}, weights: {}, body: [], height: [], over: {}, prog: {}, learn: {}, v3: 1, pid: String(Math.floor(1000 + Math.random() * 9000)) }; }
+let S = Object.assign(fresh(), load() || {});
+S.settings = Object.assign({}, DEF, S.settings);
+if (!S.v3) { S.prog.en = 0; S.v3 = 1; }
+S.height = S.height || []; S.pid = S.pid || String(Math.floor(1000 + Math.random() * 9000));
+function day(k) { return S.days[k] || (S.days[k] = { done: [], water: 0, habits: [], ex: {} }); }
+
+/* ================= exercise figures ================= */
+const BENCH = (x1, x2, y) => `<rect x="${x1}" y="${y}" width="${x2 - x1}" height="6" rx="3" fill="#2f4038"/><path d="M${x1 + 8} ${y + 6}V151M${x2 - 8} ${y + 6}V151" stroke="#2f4038" stroke-width="4"/>`;
+const RACK = `<path d="M60 14H140M62 14V163M138 14V163" stroke="#2f4038" stroke-width="4" stroke-linecap="round"/>`;
+const ANIM = {
+  bench: { props: BENCH(30, 126, 112), tool: "bar", a: [36,104,52,106,56,126,57,103,102,106,122,124,128,150,138,150], b: [36,104,52,106,53,84,54,62,102,106,122,124,128,150,138,150] },
+  incline: { props: `<path d="M114 122L74 62" stroke="#2f4038" stroke-width="7" stroke-linecap="round"/><path d="M100 124H132M110 126V151" stroke="#2f4038" stroke-width="5" stroke-linecap="round"/>`, tool: "db", a: [75,58,84,72,98,90,99,68,110,114,134,124,140,150,150,150], b: [75,58,84,72,86,50,88,28,110,114,134,124,140,150,150,150] },
+  ohp: { tool: "bar", a: [97,26,100,42,110,61,106,41,100,92,101,120,100,148,110,148], b: [99,26,100,42,101,21,101,0,100,92,101,120,100,148,110,148] },
+  lateral: { front: 1, both: 1, tool: "db", a: [100,24,100,40,86,62,85,84,100,92,95,120,94,148,88,149], a2: [114,62,115,84,105,120,106,148,112,149], b: [100,24,100,40,68,44,47,47,100,92,95,120,94,148,88,149], b2: [132,44,153,47,105,120,106,148,112,149] },
+  pushdown: { props: `<path d="M140 -10V151" stroke="#2f4038" stroke-width="5"/>`, tool: "cable", anchor: [138, -6], a: [104,27,102,42,104,64,122,52,98,92,100,120,99,148,109,148], b: [104,27,102,42,104,64,107,86,98,92,100,120,99,148,109,148] },
+  pullup: { props: RACK, noFloor: 1, tool: "", a: [101,42,100,58,100,36,100,14,100,108,103,135,92,157,88,160], b: [101,10,100,26,120,30,100,14,100,76,103,103,92,125,88,128] },
+  bbrow: { tool: "bar", a: [138,55,124,64,124,86,124,108,80,92,92,120,86,148,96,148], b: [138,55,124,64,103,74,112,94,80,92,92,120,86,148,96,148] },
+  latpd: { props: `<path d="M84 124H122M100 126V151M128 108h10" stroke="#2f4038" stroke-width="6" stroke-linecap="round"/>`, tool: "cable", anchor: [100, -12], a: [94,50,96,66,98,44,99,22,100,116,126,118,128,146,138,147], b: [94,50,96,66,86,86,100,68,100,116,126,118,128,146,138,147] },
+  facepull: { props: `<path d="M176 -10V151" stroke="#2f4038" stroke-width="5"/>`, tool: "cable", anchor: [174, 34], a: [99,26,100,42,122,42,144,40,100,92,101,120,100,148,110,148], b: [97,26,100,42,82,32,104,22,100,92,101,120,100,148,110,148] },
+  curl: { tool: "db", a: [100,26,100,42,102,64,104,86,100,92,101,120,100,148,110,148], b: [100,26,100,42,102,64,114,46,100,92,101,120,100,148,110,148] },
+  squat: { tool: "bar", a: [100,26,100,42,88,54,96,40,100,92,101,120,100,148,110,148], b: [108,63,100,77,88,89,96,75,76,120,106,121,100,148,110,148] },
+  rdl: { tool: "bar", a: [100,26,100,42,101,64,102,86,100,92,101,120,100,148,110,148], b: [142,62,128,70,128,92,128,114,82,94,96,121,100,148,110,148] },
+  deadlift: { tool: "bar", a: [133,66,120,76,118,98,116,120,82,106,106,120,100,148,110,148], b: [100,26,100,42,101,64,102,86,100,92,101,120,100,148,110,148] },
+  legpress: { props: `<path d="M18 70L44 126H88" stroke="#2f4038" stroke-width="7" stroke-linecap="round" fill="none"/><path d="M100 150L170 80" stroke="#2f4038" stroke-width="3" stroke-dasharray="4 4"/>`, tool: "sled", a: [30,72,40,84,50,104,68,114,70,120,78,94,102,92,106,84], b: [30,72,40,84,50,104,68,114,70,120,90,100,110,80,116,72] },
+  legcurl: { props: BENCH(26, 136, 110), tool: "roller", a: [34,100,48,104,38,118,26,116,98,104,126,104,154,104,158,112], b: [34,100,48,104,38,118,26,116,98,104,126,104,132,78,140,74] },
+  calf: { props: `<rect x="96" y="140" width="40" height="11" rx="2" fill="#2f4038"/>`, tool: "db", a: [100,24,100,40,101,62,102,84,100,90,101,118,100,146,110,140], b: [102,6,102,22,103,44,104,66,102,72,103,100,106,128,110,140] },
+  plank: { tool: "", a: [44,124,60,126,60,148,80,148,110,130,138,135,166,141,168,149], b: [44,123,60,125,60,148,80,148,110,127,138,133,166,141,168,149] },
+  walk: { tool: "", a: [100,26,100,42,94,63,88,84,100,92,106,120,112,147,122,148], a2: [106,63,114,82,96,120,84,144,90,149], b: [100,26,100,42,106,63,114,82,100,92,96,120,84,144,90,149], b2: [94,63,88,84,106,120,112,147,122,148] },
+  stretch: { tool: "", a: [100,26,100,42,101,20,102,-1,100,92,101,120,100,148,110,148], b: [133,140,122,128,128,142,116,149,88,90,100,119,100,148,110,148] },
+  dbrow: { props: BENCH(28, 124, 118), tool: "db", a: [130,86,114,88,114,110,114,132,66,92,60,120,56,148,66,148], a2: [113,103,113,118,68,118,40,118,32,116], b: [130,86,114,88,94,76,98,98,66,92,60,120,56,148,66,148], b2: [113,103,113,118,68,118,40,118,32,116] },
+  splitsquat: { props: BENCH(40, 74, 118), tool: "db", a: [100,26,100,42,101,64,102,86,100,92,110,120,112,148,122,148], a2: [101,64,102,86,88,118,62,116,54,116], b: [97,50,96,66,97,88,98,110,94,116,120,118,114,148,124,148], b2: [97,88,98,110,82,140,62,116,54,116] },
+  hipthrust: { props: BENCH(22, 60, 98), tool: "bar", a: [38,94,52,100,70,112,88,116,88,128,114,122,120,146,130,148], b: [38,96,52,100,72,104,92,92,92,104,118,118,120,146,130,148] },
+  pushup: { tool: "", a: [46,110,60,112,60,130,60,148,110,120,138,131,166,142,170,149], b: [46,134,60,136,76,140,60,148,112,137,140,141,166,145,170,149] },
+  hang: { props: RACK, noFloor: 1, tool: "", a: [101,42,100,58,100,36,100,14,100,108,100,135,100,162,107,163], b: [101,38,100,54,100,34,100,14,100,104,100,131,100,158,107,159] },
+  cobra: { tool: "", a: [40,138,54,142,66,146,56,148,104,144,132,145,160,146,168,146], b: [50,104,62,116,60,132,58,148,104,144,132,145,160,146,168,146] },
+  catcow: { tool: "", a: [44,98,60,110,60,129,60,148,110,108,110,134,138,148,146,150], b: [50,120,60,102,60,125,60,148,110,100,110,128,138,148,146,150] },
+  hangleg: { props: RACK, noFloor: 1, tool: "", a: [101,42,100,58,100,36,100,14,100,108,100,135,100,162,107,163], b: [101,42,100,58,100,36,100,14,96,106,123,100,150,96,154,88] }
+};
+const lerp = (a, b, k) => a.map((v, i) => v + (b[i] - v) * k);
+function poseSVG(A, p, p2, tool) {
+  const [hx, hy, sx, sy, ex, ey, wx, wy, px, py, kx, ky, ax, ay, tx, ty] = p;
+  const so = A.front ? 11 : 0, ho = A.front ? 6 : 0, M = "#efe6d2", Bk = A.front ? M : "rgba(239,230,210,.38)", T = "#d4af6a";
+  const pl = (a, c, w) => `<polyline points="${a.map(n => n.toFixed(1)).join(" ")}" fill="none" stroke="${c}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`;
+  const tl = (x, y) => tool === "bar" ? `<circle cx="${x}" cy="${y}" r="13" fill="rgba(212,175,106,.18)" stroke="${T}" stroke-width="3"/><circle cx="${x}" cy="${y}" r="2.5" fill="${T}"/>`
+    : tool === "db" ? `<rect x="${x - 9}" y="${y - 5}" width="18" height="10" rx="3" fill="${T}"/>`
+    : tool === "cable" ? `<circle cx="${x}" cy="${y}" r="4" fill="${T}"/>` : "";
+  let s = "";
+  if (tool === "cable" && A.anchor) s += `<line x1="${A.anchor[0]}" y1="${A.anchor[1]}" x2="${wx}" y2="${wy}" stroke="${T}" stroke-width="1.6" stroke-dasharray="3 3"/>`;
+  if (p2) {
+    const [e2x, e2y, w2x, w2y, k2x, k2y, a2x, a2y, t2x, t2y] = p2;
+    s += pl([px + ho, py, k2x, k2y, a2x, a2y, t2x, t2y], Bk, 7);
+    s += pl([sx + so, sy, e2x, e2y, w2x, w2y], Bk, 6);
+    if (A.both) s += tl(w2x, w2y);
+  }
+  if (A.front) s += pl([sx - so, sy, sx + so, sy], M, 7) + pl([px - ho, py, px + ho, py], M, 7);
+  s += pl([sx, sy, px, py], M, 8);
+  s += pl([px - ho, py, kx, ky, ax, ay, tx, ty], M, 7);
+  s += `<circle cx="${hx}" cy="${hy}" r="9" fill="${M}"/>`;
+  s += pl([sx - so, sy, ex, ey, wx, wy], M, 6);
+  if (tool === "roller") s += `<circle cx="${ax}" cy="${ay}" r="6" fill="${T}"/>`;
+  else if (tool === "sled") s += `<line x1="${ax - 8}" y1="${ay + 14}" x2="${ax + 14}" y2="${ay - 8}" stroke="${T}" stroke-width="5" stroke-linecap="round"/>`;
+  else s += tl(wx, wy);
+  return s;
+}
+function figHTML(anim, tool, big) {
+  const A = ANIM[anim];
+  return `<svg class="fig ${big ? "big" : ""}" viewBox="0 -12 200 178" data-a="${anim}" data-tool="${tool ?? A.tool}" aria-hidden="true">${A.noFloor ? "" : `<line x1="0" y1="151" x2="200" y2="151" stroke="rgba(239,230,210,.12)" stroke-width="2"/>`}${A.props || ""}<g class="dyn"></g></svg>`;
+}
+const RM = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+let lastF = 0;
+function animLoop(ts) {
+  if (ts - lastF > 33) {
+    lastF = ts;
+    const figs = document.querySelectorAll("svg.fig");
+    if (figs.length) {
+      const ph = (ts % 2800) / 2800, e = x => x < .5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
+      const k = RM ? 1 : ph < .4 ? e(ph / .4) : ph < .55 ? 1 : ph < .95 ? 1 - e((ph - .55) / .4) : 0;
+      figs.forEach(f => {
+        const A = ANIM[f.dataset.a]; if (!A) return;
+        f.querySelector("g.dyn").innerHTML = poseSVG(A, lerp(A.a, A.b, k), A.a2 ? lerp(A.a2, A.b2 || A.a2, k) : null, f.dataset.tool);
+      });
+    }
+  }
+  requestAnimationFrame(animLoop);
+}
+
+/* ================= workouts ================= */
+const X = (id, n, en, anim, sets, reps, rest, steps, err, tool) => ({ id, n, en, anim, sets, reps, rest, steps, err, tool });
+const WORK = {
+  chest: { type: "gym", name: "Ko'krak", title: "Ko'krak va qorin", color: COL.sun, muscles: ["Ko'krak yuqorisi", "Ko'krak o'rtasi", "Qorin"], ex: [
+    X("bench", "Shtanga bilan jim", "barbell bench press", "bench", 4, "6–8", "2–3 daq",
+      ["Skameykaga yoting, ko'zingiz shtanga ostida bo'lsin. Kuraklarni orqaga birlashtiring, oyoqlarni polga tirang.", "Shtangani yelkadan biroz kengroq ushlang va ko'krakning pastki qismiga 2–3 soniyada tushiring.", "Ko'krakka yengil tekkach, nafas chiqarib yuqoriga itaring."],
+      ["Tirsaklarni 90° ga yoyish: yelka bo'g'imiga zarar", "Shtangani ko'krakdan sakratish"]),
+    X("incdb", "Qiya skameykada gantel jim", "incline dumbbell press", "incline", 4, "8–10", "2 daq",
+      ["Skameykani 30° ga qo'ying, gantellarni sonlarga qo'yib o'tiring va yotish bilan birga ko'taring.", "Gantellarni ko'krak yuqori qismi yoniga tushiring, tirsaklar tanaga nisbatan 45°.", "Yuqoriga itaring, tepada gantellar bir-biriga yaqinlashsin."],
+      ["Skameyka juda tik: yelka ishlab ketadi", "Belni skameykadan ko'tarish"]),
+    X("dbbench", "Gorizontal gantel jim", "flat dumbbell press", "bench", 3, "10–12", "90 s",
+      ["Gantellarni ko'krak yonida ushlab yoting.", "Gantellarni ko'krak chizig'i bo'ylab yuqoriga itaring.", "Pastda ko'krak cho'zilishini his qilib, sekin tushiring."],
+      ["Gantellarni urishtirish", "Juda chuqur tushirib yelkani zo'riqtirish"], "db"),
+    X("pushup", "Polda itarilish (otjimaniye)", "push up proper form", "pushup", 3, "maksimum", "90 s",
+      ["Qo'llar yelkadan biroz kengroq, tana boshdan tovongacha to'g'ri.", "Ko'krak polga 2–3 sm qolguncha tushing, tirsaklar 45°.", "Qorinni taranglab, kuchli itarib ko'tariling."],
+      ["Belning osilib qolishi", "Yarim amplituda"]),
+    X("hlr", "Osilib oyoq ko'tarish", "hanging leg raise", "hangleg", 3, "12", "60 s",
+      ["Turnikda osiling, tana tinch.", "Oyoqlarni qorin kuchi bilan son polga parallel bo'lguncha ko'taring.", "Silkinmasdan, sekin tushiring."], ["Silkinib ko'tarish", "Tez tushirish"]),
+    X("plank", "Planka", "plank", "plank", 3, "45–60 s", "60 s",
+      ["Bilaklarga tayaning, tirsaklar yelka ostida.", "Tana boshdan tovongacha bitta to'g'ri chiziqda.", "Qorin va dumbani taranglab, bir maromda nafas oling."],
+      ["Belning osilib qolishi", "Dumbani yuqoriga ko'tarish"])]},
+  back: { type: "gym", name: "Orqa", title: "Orqa va biceps", color: COL.sky, muscles: ["Keng orqa", "Trapetsiya", "Bel", "Biceps"], ex: [
+    X("dl", "O'lik tortish (deadlift)", "conventional deadlift", "deadlift", 3, "5", "3 daq",
+      ["Shtanga oyoq o'rtasi ustida, oyoqlar son kengligida. Egilib, shtangani ushlang.", "Belni tekislab, ko'krakni ko'taring, oyoqlar bilan polni itaring.", "Tik turgach sonni orqaga surib, xuddi shu yo'l bilan tushiring."],
+      ["Yumaloq bel bilan tortish", "Shtangani tanadan uzoqlashtirish"]),
+    X("pull", "Turnikda tortilish", "pull up", "pullup", 4, "6–10", "2–3 daq",
+      ["Turnikni yelkadan kengroq ushlab osiling, kuraklarni pastga tushiring.", "Ko'krakni turnikka tortib, iyagingizni turnikdan oshiring.", "Pastga to'liq, nazorat bilan tushing."],
+      ["Oyoq bilan silkinib ko'tarilish", "Yarim amplituda"]),
+    X("row", "Egilib shtanga tortish", "barbell bent over row", "bbrow", 4, "8", "2 daq",
+      ["Tizzalarni biroz bukib, tanani 45° ga egib, belni tekis tuting.", "Shtangani kindik tomonga torting, tirsaklar orqaga ketadi.", "Tepada kuraklarni qisib, sekin tushiring."],
+      ["Belni bukish: umurtqa uchun xavfli", "Tana bilan siltab tortish"]),
+    X("latpd", "Yuqori blokni ko'krakka tortish", "lat pulldown", "latpd", 3, "10–12", "90 s",
+      ["O'tirib, sonlarni yostiq ostiga mahkamlang, dastani keng ushlang.", "Ko'krakni oldinga chiqarib, dastani ko'krak yuqorisiga torting.", "Qo'llar to'liq cho'zilguncha sekin qaytaring."],
+      ["Dastani bosh orqasiga tortish", "Orqaga juda yotib olish"]),
+    X("curlbb", "Shtanga bilan biceps", "barbell biceps curl", "curl", 3, "8–10", "90 s",
+      ["Tik turing, shtangani yelka kengligida, kaftlar oldinga qaragan holda ushlang.", "Tirsaklarni joyidan qimirlatmay, shtangani ko'krakka ko'taring.", "Tepada qisib, 2–3 soniyada tushiring."],
+      ["Tanani silkitish", "Tirsakni oldinga chiqarish"], "bar"),
+    X("ham", "Bolg'a usulida biceps", "hammer curl", "curl", 3, "12", "60 s",
+      ["Gantellarni kaftlar bir-biriga qaragan holda ushlang.", "Tirsakni qimirlatmay ko'taring.", "Sekin tushiring."], ["Tanani silkitish", "Tez tushirish"])]},
+  legs: { type: "gym", name: "Oyoq", title: "Son, dumba va boldir", color: COL.teal, muscles: ["Son oldi", "Son orqasi", "Dumba", "Boldir"], ex: [
+    X("squat", "Shtanga bilan o'tirib-turish", "barbell back squat", "squat", 4, "6–8", "3 daq",
+      ["Shtangani trapetsiyaga qo'ying, oyoqlar yelka kengligida, uchlari biroz tashqariga.", "Nafas olib, son orqaga va pastga tushadi, xuddi stulga o'tirgandek. Sonlar polga parallel bo'lguncha.", "Tovonlarga tayanib, nafas chiqarib turing."],
+      ["Tizzalarning ichkariga kirishi", "Tovonning poldan ko'tarilishi"]),
+    X("rdl", "Rumin o'lik tortishi", "romanian deadlift", "rdl", 3, "8–10", "2 daq",
+      ["Shtangani son oldida ushlab turing, tizzalar biroz bukilgan.", "Sonni orqaga surib egiling, shtanga oyoq bo'ylab sirpanib tushadi.", "Son orqasida cho'zilish sezilganda dumbani qisib qayting."],
+      ["Belni bukish", "Squatga aylantirib yuborish"]),
+    X("lp", "Oyoq bilan platforma itarish", "leg press", "legpress", 3, "10–12", "2 daq",
+      ["Trenajyorga o'tiring, oyoqlar platformada yelka kengligida.", "Platformani tizzalar 90° gacha bukilguncha tushiring.", "Tovon bilan itaring, tizzani oxirigacha qulflamang."],
+      ["Belning o'rindiqdan ajralishi", "Tizzani to'liq qulflash"]),
+    X("bss", "Bolgarcha split-squat", "bulgarian split squat", "splitsquat", 3, "10 (har oyoq)", "90 s",
+      ["Orqa oyoq uchini skameykaga qo'ying, old oyoq bir qadam oldinda.", "Orqa tizza polga yaqinlashguncha to'g'ri pastga tushing.", "Old oyoq tovoniga tayanib ko'tariling."], ["Old tizzaning ichkariga kirishi", "Old oyoqning juda yaqin turishi"]),
+    X("lc", "Yotib oyoq bukish", "lying leg curl", "legcurl", 3, "12", "60 s",
+      ["Trenajyorga qorin bilan yoting, rolik tovondan yuqorida.", "Oyoqlarni bukib, rolikni dumbaga tomon torting.", "3 soniyada sekin qaytaring."],
+      ["Sonni o'rindiqdan ko'tarish", "Tez tushirish"]),
+    X("calf", "Boldirni ko'tarish", "standing calf raise", "calf", 4, "12–15", "60 s",
+      ["Pog'ona chetida oyoq uchlarida turing, tovonlar pastda.", "Tovonlarni iloji boricha yuqoriga ko'taring.", "Tepada 1 soniya to'xtab, pastga to'liq cho'zilib tushing."],
+      ["Qisqa amplituda", "Sakrab bajarish"])]},
+  arms: { type: "gym", name: "Qo'llar", title: "Biceps, triceps va qorin", color: COL.rose, muscles: ["Biceps", "Triceps", "Bilak", "Qorin"], ex: [
+    X("cgb", "Tor ushlab shtanga jim", "close grip bench press", "bench", 4, "8", "2 daq",
+      ["Shtangani yelka kengligida yoki biroz torroq ushlang.", "Tirsaklarni tanaga yaqin tutib, ko'krak pastiga tushiring.", "Triceps kuchi bilan yuqoriga itaring."], ["Juda tor ushlash: bilakka zarar", "Tirsaklarni yoyish"]),
+    X("curl", "Gantel bilan biceps", "dumbbell biceps curl", "curl", 4, "10–12", "60 s",
+      ["Tik turing, gantellar yonda, kaftlar oldinga qaragan.", "Tirsaklarni qimirlatmay, gantellarni yelkaga ko'taring.", "Tepada 1 soniya qisib, 2–3 soniyada tushiring."],
+      ["Tanani silkitish", "Tirsakni oldinga chiqarish"]),
+    X("tri2", "Blokda triceps tortish", "cable triceps pushdown", "pushdown", 4, "12", "60 s",
+      ["Blok oldida turing, dastani ushlang, tirsaklarni tanaga yopishtiring.", "Faqat bilakni harakatlantirib, dastani pastga to'liq tushiring.", "Pastda tricepsni 1 soniya qisib, sekin qaytaring."],
+      ["Tirsaklarni oldinga-orqaga qimirlatish", "Tana og'irligi bilan bosish"]),
+    X("ham2", "Bolg'a usulida biceps", "hammer curl", "curl", 3, "12", "60 s",
+      ["Gantellarni kaftlar bir-biriga qaragan holda ushlang.", "Tirsakni qimirlatmay ko'taring.", "Sekin tushiring."], ["Tanani silkitish", "Tez tushirish"]),
+    X("hlr2", "Osilib oyoq ko'tarish", "hanging leg raise", "hangleg", 3, "12", "60 s",
+      ["Turnikda osiling, tana tinch.", "Oyoqlarni qorin kuchi bilan ko'taring.", "Silkinmasdan, sekin tushiring."], ["Silkinish", "Tez tushirish"]),
+    X("plank2", "Planka", "plank", "plank", 3, "60 s", "60 s",
+      ["Bilaklarga tayaning.", "Tana bitta to'g'ri chiziqda.", "Qorinni taranglang."], ["Bel osilishi", "Nafasni ushlash"])]},
+  posture: { type: "active", name: "Qad va bo'y", title: "Umurtqa cho'zilishi va to'g'ri qad", color: COL.lilac, muscles: ["Umurtqa", "Bel", "Son orqasi", "Ko'krak"], ex: [
+    X("hang", "Turnikda erkin osilish", "dead hang benefits spine", "hang", 3, "30–45 s", "60 s",
+      ["Turnikni yelka kengligida ushlab, oyoqlarni yerdan uzing.", "Tanani bo'shashtiring, umurtqa og'irlik ostida cho'zilishini his qiling.", "Chuqur va sekin nafas oling."], ["Yelkani to'liq bo'shatib osilib qolish (biroz taranglik saqlang)", "Sakrab tushish"]),
+    X("cobra", "Kobra cho'zilishi", "cobra stretch", "cobra", 3, "20–30 s", "30 s",
+      ["Qorin bilan polga yoting, kaftlar yelka ostida.", "Qo'llar bilan ko'krakni sekin ko'taring, son poldan uzilmasin.", "Bel va qorin cho'zilishini his qilib, ushlab turing."], ["Boshni keskin orqaga tashlash", "Belda og'riq paydo bo'lguncha egilish"]),
+    X("catcow", "Mushuk va sigir", "cat cow stretch", "catcow", 2, "10 marta", "30 s",
+      ["To'rt oyoqlab turing: kaftlar yelka ostida, tizzalar son ostida.", "Nafas olib, belni pastga bukib boshni ko'taring.", "Nafas chiqarib, orqani yuqoriga dumaloqlang, iyakni ko'krakka torting."], ["Tez bajarish", "Nafasni ushlab turish"]),
+    X("fold", "Oldinga egilish", "standing forward fold hamstring stretch", "stretch", 3, "30 s", "30 s",
+      ["Tik turing, qo'llarni yuqoriga cho'zing.", "Sonni orqaga surib, oldinga sekin egiling.", "Son orqasida cho'zilishni his qilib ushlang."], ["Siltab cho'zish", "Tizzani qattiq qulflash"]),
+    X("walk", "Tez yurish", "brisk walking posture", "walk", 1, "20–30 daq", "—",
+      ["Qad tik, yelkalar orqada, nigoh oldinga.", "Qo'llarni erkin silkiting.", "Iloji bo'lsa toza havoda va tabiiy yorug'likda."], ["Telefonga qarab yurish", "Bukchayib yurish"])]},
+  shoulders: { type: "gym", name: "Yelka", title: "Yelka va triceps", color: COL.rose, muscles: ["Old yelka", "Yon yelka", "Orqa yelka", "Triceps"], ex: [
+    X("ohp", "Turib shtangani boshdan yuqoriga", "standing overhead press", "ohp", 4, "6–8", "2–3 daq",
+      ["Shtangani yelka kengligida ushlab, ko'krak yuqorisida tuting. Dumba va qorinni taranglang.", "Boshni biroz orqaga olib, shtangani tik yuqoriga itaring.", "Tepada boshni qo'llar orasiga olib keling, so'ng sekin qaytaring."],
+      ["Belni orqaga egish", "Tizzalardan sakrab yordam berish"]),
+    X("dbp", "O'tirib gantel bilan yelka jim", "seated dumbbell shoulder press", "ohp", 3, "10", "90 s",
+      ["Tik suyanchiqli skameykaga o'tiring, gantellar quloq balandligida.", "Gantellarni yuqoriga itaring.", "Quloq balandligigacha sekin tushiring."], ["Belni suyanchiqdan uzish", "Gantellarni urishtirish"], "db"),
+    X("lat", "Yon tomonga gantel ko'tarish", "dumbbell lateral raise", "lateral", 4, "12–15", "60 s",
+      ["Gantellarni yonda ushlab, tirsaklarni biroz buking.", "Qo'llarni yon tomonga yelka balandligigacha ko'taring.", "2–3 soniyada sekin tushiring."],
+      ["Og'ir vazn olib tanani silkitish", "Yelkani quloqqa tortish"]),
+    X("face", "Arqon bilan yuzga tortish", "face pull", "facepull", 3, "15", "60 s",
+      ["Blokni yuz balandligiga qo'ying, arqonni ikki qo'llab ushlang.", "Arqonni yuzingiz tomon torting, tirsaklar baland va yonga.", "Oxirida qo'llarni tashqariga burang, so'ng qaytaring."],
+      ["Og'ir vazn: harakat buziladi", "Tirsaklarni pastga tushirish"]),
+    X("tri", "Blokda triceps tortish", "cable triceps pushdown", "pushdown", 4, "10–12", "60 s",
+      ["Blok oldida turing, dastani ushlang, tirsaklarni tanaga yopishtiring.", "Faqat bilakni harakatlantirib, dastani pastga to'liq tushiring.", "Pastda tricepsni 1 soniya qisib, sekin qaytaring."],
+      ["Tirsaklarni oldinga-orqaga qimirlatish", "Tana og'irligi bilan bosish"])]},
+  rest: { type: "rest", name: "Dam", title: "To'liq tiklanish kuni", color: COL.dim, muscles: ["Uyqu", "Ovqat", "Sayr"], ex: [] }
+};
+const ORDER = ["chest", "back", "legs", "arms", "posture", "shoulders", "rest"];
+const POSTURE10 = ["hang", "cobra", "catcow", "fold"];
+
+/* ================= food ================= */
+const BREAKFAST = {
+  1: { name: "Sabzavotli omlet", items: "3 tuxum, pomidor, bulg'or qalampiri va ko'katlar bilan. 1–2 bo'lak to'liq donli non va bitta banan.", p: 30, why: "Tuxum oqsili to'liq aminokislotalarga ega va mashqdan keyingi tiklanishga yaxshi." },
+  2: { name: "Sutli suli bo'tqasi va tuxum", items: "Sutda pishirilgan suli bo'tqasi, bir hovuch yong'oq, bir qoshiq asal. Yoniga 2 ta qaynatilgan tuxum.", p: 32, why: "Sekin hazm bo'ladigan uglevodlar uzoq ish kuniga energiya beradi." },
+  3: { name: "Tvorog va mevalar", items: "200 g tvorog, mavsumiy mevalar, asal va yong'oq. Bir bo'lak non.", p: 35, why: "Tvorogdagi kazein oqsili uzoq to'q tutadi." },
+  4: { name: "Qaynatilgan tuxum va qatiq", items: "3 ta qaynatilgan tuxum, bir kosa qatiq, pomidor-bodring, to'liq donli non.", p: 28, why: "Yengil, lekin oqsilga boy." },
+  5: { name: "Grechka va tuxum", items: "Sutli grechka bo'tqasi, 2 ta tuxum, bir dona olma yoki nok.", p: 28, why: "Grechka temir va magniyga boy, mushak ishiga yordam beradi." },
+  6: { name: "Pishloqli omlet va smuzi", items: "3 tuxum va pishloqli omlet. Smuzi: sut, banan, 2 qoshiq suli yormasi.", p: 38, why: "Ko'proq kaloriya va oqsil: mushak o'sishi uchun." },
+  0: { name: "Tvorogli quymoq (sirniki)", items: "Tvorogli quymoqlar, qatiq, mevalar.", p: 30, why: "Tvorog oqsili va meva vitaminlari." }
+};
+const LUNCH = { 1: "Tovuqli guruch, ko'katli salat", 2: "Mol go'shtli grechka, sabzavot", 3: "Baliq yoki tovuq, kartoshka, salat", 4: "Mastava yoki sho'rva, 2 tuxum, non", 5: "Tovuq ko'krak, makaron, sabzavot", 6: "Osh (o'rtacha porsiya), achchiq-chuchuk salat", 0: "Kabob (tovuq yoki mol), non, ko'katlar" };
+const HABITS = ["Belgilangan vaqtda turdim", "Suv me'yorini ichdim", "Mashq yoki faol harakat qildim", "Bugungi darslarni o'qidim", "Shakar va fastfudsiz kun", "Uxlashdan oldin 30 daq telefonsiz"];
+
+/* ================= courses ================= */
+const C = (t, k, task, q) => ({ t, k, task, q });
+const COURSES = {
+  en: { name: "Ingliz tili (B1 sari)", short: "Ingliz tili", color: COL.sky, ico: "🇬🇧", site: ["BBC Learning English", "https://www.bbc.co.uk/learningenglish"], site2: ["British Council LearnEnglish", "https://learnenglish.britishcouncil.org"], res: "BBC Learning English («6 Minute English», «English in a Minute»), British Council LearnEnglish (B1 grammatika), YouTube: English with Lucy, mmmEnglish", lessons: [
+    C("Present Perfect va Past Simple", ["Aniq vaqt bo'lsa Past Simple: I visited London in 2022.", "Natija hozirga ta'sir qilsa yoki vaqt aytilmasa Present Perfect: I've visited London twice.", "Signal so'zlar: ever, never, already, yet, just, so far — Present Perfect; yesterday, ago, last year — Past Simple."], "O'zingiz hayotda qilgan va hali qilmagan 10 ta ish haqida yozing (I've… / I haven't… yet).", "BBC Learning English present perfect past simple"),
+    C("Present Perfect Continuous", ["Hozirgacha davom etayotgan jarayon: I've been working here for two years.", "for — davomiylik (for three months), since — boshlanish nuqtasi (since 2024).", "How long have you been learning English? — savol shakli."], "Hayotingizdagi 6 ta davom etayotgan jarayonni for/since bilan yozing.", "English with Lucy present perfect continuous"),
+    C("Past Continuous: hikoya qurish", ["Fon harakati Past Continuous, to'satdan bo'lgan voqea Past Simple: I was driving when my phone rang.", "while — ikki parallel jarayon: While I was cooking, he was studying.", "Hikoya boshlash: It was raining and everyone was rushing home…"], "Yaqinda bo'lgan qiziq voqeani 8 jumlalik hikoya qilib yozing.", "BBC Learning English past continuous"),
+    C("Past Perfect", ["O'tmishdagi voqeadan ham oldinroq bo'lgan ish: When I arrived, the meeting had already started.", "had + 3-shakl: had finished, had gone, had seen.", "by the time, before, after bilan ko'p ishlatiladi."], "«Kechikkan kun» haqida Past Perfect qo'shib 6 jumla yozing.", "past perfect tense explained mmmEnglish"),
+    C("Used to va would", ["O'tmishdagi odat, hozir yo'q: I used to play football every day.", "would — o'tmishdagi takroriy harakat (holat emas): On Sundays we would visit my grandparents.", "be used to + -ing — ko'nikkan bo'lish: I'm used to waking up early."], "Bolaligingiz va hozirgi hayotingizni solishtirib 8 jumla yozing.", "used to vs be used to English with Lucy"),
+    C("Kelajak shakllari", ["will — shu zahoti qaror yoki bashorat: I'll help you.", "going to — oldindan reja: I'm going to open a business.", "Present Continuous — kelishilgan uchrashuv: I'm meeting my boss at 5."], "Keyingi haftangiz rejasini uchala shakl bilan yozing.", "future tenses will going to present continuous BBC"),
+    C("First Conditional", ["Real kelajak sharti: If I save money, I'll buy a car.", "Vaqt bog'lovchilari: when, as soon as, unless (= if not).", "If dan keyin will ishlatilmaydi: If it rains (not will rain)…"], "Maqsadlaringiz haqida 6 ta first conditional jumla yozing.", "first conditional BBC Learning English"),
+    C("Second Conditional", ["Xayoliy hozir yoki kelajak: If I had more time, I would learn Spanish.", "If I were you, I would… — maslahat berishning eng mashhur usuli.", "would → 'd: I'd travel the world."], "«Agar millioner bo'lsam» mavzusida 8 jumla yozing.", "second conditional English with Lucy"),
+    C("Third Conditional va pushaymonlik", ["O'tmish haqida xayol: If I had studied harder, I would have passed.", "I wish I had… — o'tmishdagi afsus: I wish I had started earlier.", "should have — tanqid: I should have saved money."], "O'tmishdagi 3 ta qarorni third conditional bilan qayta ko'rib chiqing.", "third conditional wish should have mmmEnglish"),
+    C("Passive Voice", ["Kim qilgani muhim bo'lmasa: The report was written last week.", "be + 3-shakl: is made, was built, has been sold, will be done.", "by — bajaruvchini aytish: The app was created by a small team."], "Shahringiz yoki kompaniyangiz haqida 8 ta passive jumla yozing.", "passive voice BBC Learning English"),
+    C("Have something done", ["Xizmatni boshqaga qildirish: I had my car repaired.", "get something done — og'zaki shakl: I need to get my hair cut.", "Passive bilan reklama va hisobotlarda ko'p uchraydi."], "Oxirgi oyda boshqalarga qildirgan 6 ishingizni yozing.", "have something done causative English"),
+    C("Reported Speech: gaplar", ["He said, «I am tired» → He said (that) he was tired.", "Zamon bir qadam orqaga: am → was, will → would, have done → had done.", "say vs tell: He told me that…, He said that…"], "Bugun eshitgan 6 ta gapni reported speech bilan qayta yozing.", "reported speech BBC Learning English"),
+    C("Reported Speech: savollar", ["She asked, «Where do you work?» → She asked where I worked.", "Ha/yo'q savollar if yoki whether bilan: He asked if I was ready.", "So'z tartibi oddiy gapdagidek bo'ladi, do/did tushib qoladi."], "Ish suhbatida beriladigan 6 savolni reported speech bilan yozing.", "reported questions English grammar"),
+    C("Relative Clauses", ["who — odam, which — narsa, that — ikkalasi, where — joy, whose — egalik.", "The man who called you is my manager.", "Qo'shimcha ma'lumot vergul bilan: Tashkent, which is the capital, is growing fast."], "Oilangiz va do'stlaringizni relative clause bilan 8 jumlada tasvirlang.", "relative clauses who which that mmmEnglish"),
+    C("Taxmin modallari", ["must — deyarli aniq: He must be tired, he worked 12 hours.", "might / may / could — balki: She might be at the gym.", "can't — imkonsiz: That can't be true."], "Fotosuratga qarab undagi odamlar haqida 6 ta taxmin yozing.", "modal verbs of deduction must might can't BBC"),
+    C("Gerund yoki Infinitive", ["enjoy, avoid, finish, keep + -ing: I enjoy reading.", "want, decide, plan, hope + to: I decided to start.", "Ma'nosi o'zgaradiganlar: stop smoking (tashlash) va stop to smoke (chekish uchun to'xtash)."], "Odatlaringiz haqida gerund va infinitive bilan 10 jumla yozing.", "gerund vs infinitive English with Lucy"),
+    C("Ish uchun phrasal verbs", ["carry out — bajarmoq, set up — tashkil etmoq, deal with — hal qilmoq.", "follow up — keyin qayta aloqaga chiqmoq, come up with — o'ylab topmoq.", "take on — o'z zimmasiga olmoq, run out of — tugab qolmoq."], "Har bir phrasal verb bilan ishingizga oid jumla tuzing.", "business phrasal verbs BBC Learning English"),
+    C("Kundalik phrasal verbs", ["get up, work out, find out, give up, look forward to.", "put off — kechiktirmoq: Don't put off your training.", "turn up / turn down — ovozni oshirish yoki taklifni rad etish."], "Kun tartibingizni 8 ta phrasal verb bilan tasvirlang.", "everyday phrasal verbs mmmEnglish"),
+    C("Collocations: make, do, take", ["make a decision, make money, make a mistake.", "do business, do homework, do your best.", "take a break, take a risk, take responsibility."], "Har fe'l bilan 4 tadan collocation va jumla yozing.", "make do take collocations English"),
+    C("Bog'lovchi so'zlar", ["Qarama-qarshilik: however, although, despite + -ing / noun.", "Sabab va natija: because of, due to, therefore, as a result.", "Qo'shimcha: moreover, in addition, furthermore."], "«Sport va ish» mavzusida bog'lovchilar bilan 150 so'zlik insho yozing.", "linking words however although despite BBC"),
+    C("Majlisda fikr bildirish", ["Fikr: In my opinion… / I believe… / From my point of view…", "Rozilik va norozilik: I agree up to a point, but… / I'm not sure about that.", "Aniqlashtirish: Could you clarify what you mean by…?"], "Majlisda yangi g'oyani taklif qilayotgan 10 qatorli dialog yozing.", "business English meetings expressing opinions"),
+    C("Ish email va muzokara", ["Muloyim so'rov: I was wondering if you could…", "Taklif: Would you consider…? / What if we…?", "Kelishuvni yakunlash: So, to sum up, we've agreed that…"], "Yetkazib beruvchiga narxni pasaytirishni so'rab email yozing.", "business email negotiation English"),
+    C("Grafik va trendlarni tasvirlash", ["Oshish: rise, increase, grow, go up sharply / gradually.", "Tushish: fall, drop, decline, decrease slightly.", "Barqarorlik: remain stable, level off, reach a peak."], "Istalgan narx grafigini (trading darslaridagi) inglizcha 6 jumlada tasvirlang.", "describing graphs and trends English"),
+    C("B1 tekshiruv va yakun", ["Siz endi B1 grammatikasining asosiy qismini o'tdingiz.", "Darajangizni tekshirish uchun Cambridge B1 Preliminary namunaviy testlari yoki British Council onlayn testini ishlang.", "Keyingi bosqich: B2 — har kuni 20 daqiqa ingliz tilidagi kontent va gapirish amaliyoti."], "Onlayn B1 testini ishlang va natijani yozib qo'ying. 3 daqiqalik nutqni ovozli yozib oling.", "Cambridge B1 Preliminary speaking test example")]},
+  biz: { name: "Biznes asoslari", short: "Biznes", color: COL.sun, ico: "📘", site: ["Y Combinator Library", "https://www.ycombinator.com/library"], res: "«Lean Startup» (Eric Ries), «Business Model Generation», Coursera'dagi bepul kirish kurslari", lessons: [
+    C("Biznes nima", ["Biznes — odamlar muammosini pul evaziga hal qilish. Qiymat yo'q joyda sotuv yo'q.", "Asosiy formula: Foyda = Daromad − Xarajatlar.", "Har bir biznes 3 savolga javob beradi: kim uchun? qanday muammo? nega aynan biz?"], "Atrofingizdagi 3 ta biznes qaysi muammoni hal qilishini yozing."),
+    C("Muammo va mijoz", ["Mijozni aniq tasavvur qiling: yoshi, kasbi, daromadi, qayerda vaqt o'tkazadi.", "Mijozning og'rig'i — u vaqt, pul yoki asab sarflayotgan joy.", "Eng yaxshi g'oyalar o'zingiz duch kelgan muammolardan chiqadi."], "Toshkentdagi 10 ta kundalik muammoni yozing, eng og'rig'ini belgilang."),
+    C("Qiymat taklifi", ["Qiymat taklifi — mijoz nega sizni tanlashining bitta jumlasi.", "Formula: [Mijoz] uchun [muammo]ni [yechim] orqali hal qilamiz, [raqobatchi]dan farqli [afzallik].", "Afzallik: tezroq, arzonroq, qulayroq, sifatliroq yoki noyob."], "Tanlagan muammongiz uchun qiymat taklifini yozing."),
+    C("Bozor hajmi", ["TAM — umumiy bozor, SAM — siz yeta oladigan qism, SOM — real egallay oladigan ulush.", "Oddiy hisob: mijozlar soni × yillik xarid soni × o'rtacha narx.", "Kichik bozorda yetakchi bo'lish katta bozorda ko'rinmaslikdan yaxshi."], "G'oyangiz uchun SOM ni taxminan hisoblang."),
+    C("Raqobatchilar", ["Raqobatchi yo'q bo'lsa, ehtimol bozor ham yo'q.", "Bevosita (xuddi shu mahsulot) va bilvosita (boshqa yechim) raqobatchilar.", "Narx, sifat, xizmat, joylashuv, marketing: ularning zaif tomoni — sizning imkoniyatingiz."], "3 ta raqobatchi uchun shu jadvalni to'ldiring."),
+    C("Biznes model kanvasi", ["9 blok: mijozlar, qiymat taklifi, kanallar, munosabat, daromad, resurslar, faoliyat, hamkorlar, xarajatlar.", "Bir sahifada butun biznesni ko'rasiz.", "Har blok — gipoteza, keyin sinaladi."], "G'oyangiz uchun kanvasni qog'ozda to'ldiring."),
+    C("Daromad modellari", ["Bir martalik sotuv, obuna, komissiya, reklama, litsenziya, xizmat haqi.", "Takroriy daromad biznesni barqaror qiladi.", "Bir biznesda bir nechta model birlashishi mumkin."], "Tanish 5 ta kompaniyaning daromad modelini aniqlang."),
+    C("Xarajat va zararsizlik", ["Doimiy xarajat (ijara, maosh) va o'zgaruvchan xarajat (xomashyo, yetkazish).", "Zararsizlik nuqtasi = Doimiy xarajat ÷ (Narx − Birlik tannarxi).", "Misol: 10 mln doimiy, narx 50 ming, tannarx 30 ming → 500 ta sotish kerak."], "G'oyangiz uchun zararsizlik nuqtasini hisoblang."),
+    C("Narx belgilash", ["Uch yondashuv: tannarx + ustama, raqobatchi narxi, mijoz uchun qiymat.", "Eng kuchlisi — qiymatga asoslangan narx.", "Arzonlik — eng zaif raqobat ustunligi."], "3 xil narx paketini tuzing: oddiy, standart, premium."),
+    C("Unit ekonomika", ["CAC — bitta mijozni jalb qilish narxi.", "LTV — bir mijoz butun davr davomida keltiradigan foyda.", "Sog'lom biznesda LTV kamida 3 baravar CAC dan katta."], "Taxminiy CAC va LTV ni hisoblang."),
+    C("MVP va sinov", ["MVP — g'oyani sinash uchun eng kichik ishlaydigan versiya.", "Avval sotib ko'ring, keyin quring: oldindan buyurtma, Telegram kanal, oddiy sahifa.", "O'lchang: nechta odam qiziqdi, nechtasi to'ladi."], "G'oyangizni 1 haftada 0 so'm bilan qanday sinashni rejalashtiring."),
+    C("Marketing (4P)", ["Product, Price, Place, Promotion — mahsulot, narx, joy, targ'ibot.", "To'g'ri odamga, to'g'ri vaqtda, to'g'ri xabar.", "Hammaga emas, bitta aniq auditoriyaga gapiring."], "Mahsulotingiz uchun 4P jadvalini to'ldiring."),
+    C("Raqamli marketing va voronka", ["Voronka: ko'rdi → qiziqdi → murojaat qildi → sotib oldi → qayta keldi.", "Asosiy kanallar: Telegram, Instagram, YouTube, tavsiyalar.", "Kontent qoidasi: 80% foydali, 20% sotuv."], "1 haftalik kontent rejasini yozing (7 post)."),
+    C("Sotuv san'ati", ["Sotuv — gapirish emas, savol berish va tinglash.", "Aloqa → ehtiyojni aniqlash → yechim → e'tirozlar → kelishuv.", "«Qimmat» ko'pincha «qiymatini tushunmadim» degani."], "Eng ko'p uchraydigan 5 ta e'tirozga javob yozing."),
+    C("Pul oqimi va P&L", ["P&L — daromad, xarajat va foyda hisoboti.", "Cash flow — pul aslida qachon kirib-chiqishi. Foydali biznes ham naqd pulsiz yopilishi mumkin.", "Har oy: kirim, chiqim, qoldiq jadvali."], "Shaxsiy oylik kirim-chiqim jadvalingizni tuzing."),
+    C("Shaxsiy moliya", ["50/30/20: 50% zarur xarajat, 30% xohishlar, 20% jamg'arma.", "Xavfsizlik yostig'i: 3–6 oylik xarajatga teng zaxira.", "Maosh kelishi bilan avval jamg'armani ajrating."], "Daromadingizni 50/30/20 bo'yicha taqsimlang."),
+    C("Muzokaralar", ["Tayyorgarlik: maqsad, minimal chegara va muqobil variant.", "Birinchi taklif ko'pincha natijani belgilaydi.", "Pozitsiya emas, manfaat haqida so'rang: «Bu siz uchun nega muhim?»"], "Yaqinlashayotgan muzokara uchun reja yozing."),
+    C("Yakuniy loyiha", ["Bir sahifalik reja: muammo, mijoz, yechim, bozor, raqobat, daromad, xarajat, 90 kun.", "Reja — gipotezalar ro'yxati, uni sinab o'zgartirasiz.", "Keyingi qadam: real mijozlar bilan 10 ta suhbat."], "G'oyangiz uchun 1 sahifalik biznes reja yozing.")]},
+  tr: { name: "Trading ko'nikmalari", short: "Trading", color: COL.teal, ico: "📈", site: ["Babypips School", "https://www.babypips.com/learn/forex"], res: "TradingView (bepul grafiklar va demo savdo), Babypips «School of Pipsology»", lessons: [
+    C("Trading nima", ["Trading — narx o'zgarishidan qisqa yoki o'rta muddatda foyda olishga urinish. Investitsiya — uzoq muddatli.", "Yangi treyderlarning katta qismi pul yo'qotadi. Shuning uchun birinchi 3 oy faqat demo hisob.", "Trading tez boyish emas, qoidaga asoslangan kasb."], "Nega trading o'rganayotganingizni va qancha pul yo'qotishga tayyor ekaningizni yozing."),
+    C("Bozorlar va brokerlar", ["Bozorlar: aksiyalar, valyuta (forex), kriptovalyuta, tovarlar (oltin, neft).", "Broker — siz va bozor o'rtasidagi vositachi. Litsenziya va ishonchlilikni tekshiring.", "Har bozorning savdo vaqti va xavf darajasi turlicha."], "4 bozorning farqini o'z so'zlaringiz bilan yozing."),
+    C("Asosiy atamalar", ["Bid/Ask — sotish/sotib olish narxi. Farqi — spred, ya'ni sizning xarajatingiz.", "Long — narx oshishiga, Short — tushishiga pozitsiya.", "Leverage (yelka) foydani ham, zararni ham ko'paytiradi. Yangi boshlovchi uchun eng xavfli vosita."], "Atamalarni kartochkaga yozib, misol bilan tushuntiring."),
+    C("Yaponcha shamlar", ["Har bir sham: ochilish, yopilish, eng yuqori va eng past narx.", "Yashil — narx oshdi, qizil — tushdi. Soyalar — narx borib qaytgan joylar.", "Uzun soya — bozor o'sha narxni rad etgani belgisi."], "TradingView'da grafik ochib, 10 ta shamni tahlil qiling."),
+    C("Taymfreym va trend", ["Taymfreym — bitta sham qancha vaqtni ko'rsatishi: M15, H1, H4, D1.", "Yuqoridan boshlang: D1 da yo'nalish, H1 da kirish nuqtasi.", "Trend: ko'tariluvchi, tushuvchi yoki yon (flet)."], "3 ta aktivda D1 trendni aniqlang."),
+    C("Support va resistance", ["Support — narx bir necha bor to'xtab, yuqoriga qaytgan daraja.", "Resistance — narx o'ta olmay, pastga qaytgan daraja.", "Buzilgan resistance ko'pincha yangi support bo'ladi."], "Bitta grafikda 3 support va 3 resistance chizing."),
+    C("Trend chiziqlari", ["Ko'tariluvchi trendda tublarni, tushuvchida cho'qqilarni tutashtiring.", "Kamida 2, yaxshisi 3 tegish nuqtasi.", "Chiziq buzilishi trend zaiflashganini bildirishi mumkin."], "5 ta grafikda trend chizig'i chizing."),
+    C("Hajm (volume)", ["Hajm — qancha savdo bo'lganini ko'rsatadi.", "Katta hajmli harakat kuchli, kichik hajmli harakat ishonchsiz.", "Daraja katta hajm bilan buzilsa, signal ishonchliroq."], "3 ta kuchli harakatda hajmni tekshiring."),
+    C("Harakatlanuvchi o'rtachalar", ["MA — davr bo'yicha o'rtacha narx. EMA yangi narxlarga ko'proq e'tibor beradi.", "Mashhurlari: EMA 20, 50, 200.", "Narx EMA 200 dan yuqori — umumiy kayfiyat ko'tariluvchi."], "Grafikga EMA 20 va 200 qo'shib kuzating."),
+    C("RSI va MACD", ["RSI 0–100: 70 dan yuqori — haddan ortiq sotib olingan, 30 dan past — haddan ortiq sotilgan.", "MACD — trend kuchi va yo'nalish o'zgarishini ko'rsatadi.", "Indikator yolg'iz signal emas, faqat daraja va trend bilan birga."], "RSI 30 dan tushgan 3 holatni toping, keyin nima bo'lganini yozing."),
+    C("Sham patternlari", ["Pin bar — uzun soyali sham, rad etish belgisi.", "Engulfing — oldingi shamni to'liq qoplagan sham.", "Pattern faqat muhim daraja yonida mazmunli."], "Grafikda 5 pin bar va 3 engulfing toping."),
+    C("Grafik figuralar", ["Double top/bottom — ikki marta urinib o'tolmaslik.", "Head & Shoulders — trend o'zgarishi figurasi.", "Uchburchak va bayroq — trend davomi figuralari."], "Har figuradan bittadan misol toping."),
+    C("Risk: 1% qoidasi", ["Bitta savdoda hisobning 1–2% idan ortig'ini xavfga qo'ymang.", "10 ta ketma-ket zarar: 1% da hisobning ~10% i, 10% da esa ~65% i ketadi.", "Omon qolish — trading'ning birinchi qoidasi."], "1000$ hisob, 1% risk bilan 10 ta zarar natijasini hisoblang."),
+    C("Stop-loss va take-profit", ["Stop-loss — zararni cheklovchi buyruq, savdoga kirishdan oldin qo'yiladi.", "Take-profit — foyda olinadigan daraja.", "Risk/reward kamida 1:2 bo'lsa, 40% yutuq bilan ham foydadasiz."], "3 ta taxminiy savdo uchun SL, TP va R:R yozing."),
+    C("Pozitsiya hajmi", ["Formula: Hajm = (Hisob × Risk %) ÷ Stop masofasi.", "Misol: 1000$ × 1% = 10$; stop 0.50$ → 20 ta aksiya.", "Hajmni his bilan emas, formula bilan tanlang."], "5 xil stop masofasi uchun hajmni hisoblang."),
+    C("Savdo rejasi", ["Reja: bozor, taymfreym, kirish va chiqish shartlari, risk, kunlik zarar limiti.", "Rejasiz savdo — trading emas, qimor.", "Qoidani buzgan savdo foydali bo'lsa ham xato."], "Bir sahifalik shaxsiy savdo rejangizni yozing."),
+    C("Jurnal va psixologiya", ["Har savdoni yozing: sana, sabab, kirish, chiqish, natija, his-tuyg'u.", "FOMO va zararni qaytarishga urinish hisobni yo'q qiladi.", "Kunlik limitga yetdingizmi — terminalni yoping."], "Savdo jurnali jadvalini tayyorlang."),
+    C("Fundamental tahlil va demo sinov", ["Iqtisodiy kalendar: foiz stavkasi, inflyatsiya, ishsizlik ma'lumotlari narxni keskin harakatlantiradi.", "Muhim yangilik oldidan savdo ochmaslik — xavfsiz qoida.", "Keyingi bosqich: 30 kun demo hisobda reja va jurnal bilan savdo."], "Demo hisob oching va 30 kunlik sinov qoidalarini yozing.")]}
+};
+
+const BIZQ = ["what is a business explained simply", "customer discovery interviews Y Combinator", "value proposition canvas explained", "TAM SAM SOM market size explained", "competitor analysis for small business", "business model canvas explained", "business revenue models explained", "break even point explained", "pricing strategy explained", "unit economics CAC LTV explained", "MVP minimum viable product Y Combinator", "marketing mix 4P explained", "marketing funnel explained", "sales techniques handling objections", "cash flow vs profit explained", "50 30 20 budget rule explained", "negotiation skills BATNA explained", "one page business plan"];
+const TRQ = ["trading vs investing difference beginners", "stock forex crypto markets explained", "bid ask spread leverage explained", "how to read candlestick charts", "timeframes and trends trading", "support and resistance explained", "how to draw trendlines correctly", "volume analysis trading basics", "moving averages EMA explained", "RSI MACD explained beginners", "pin bar engulfing candlestick patterns", "chart patterns head and shoulders double top", "1 percent risk rule trading", "stop loss take profit risk reward", "position sizing formula trading", "how to make a trading plan", "trading journal psychology FOMO", "economic calendar fundamental analysis demo account"];
+function lessonQ(id, i) { const L = COURSES[id].lessons[i]; return L.q || (id === "biz" ? BIZQ[i] : TRQ[i]); }
+
+/* ================= plan engine ================= */
+function workInfo(d) {
+  const s = S.settings, o = S.over[dkey(d)];
+  if (o && o.off) return null;
+  if (o && o.start) return { start: toMin(o.start), end: toMin(o.end), custom: 1 };
+  return s.workDays.includes(d.getDay()) ? { start: toMin(s.workStart), end: toMin(s.workEnd) } : null;
+}
+function wakeOf(d) { return workInfo(d) ? toMin(S.settings.wake) : toMin(S.settings.wakeOff); }
+function restDay() { const w = S.settings.workDays; for (let i = 0; i < 7; i++) if (!w.includes(i) && w.includes((i + 1) % 7)) return i; return 0; }
+function workoutFor(dow) { return WORK[ORDER[(dow - restDay() - 1 + 14) % 7]]; }
+function lessonsFor(d) { const n = Math.floor((d.getTime() - d.getTimezoneOffset() * 6e4) / 864e5); return workInfo(d) ? [n % 2 ? "tr" : "biz"] : ["biz", "tr"]; }
+function lessonInfo(id) {
+  const c = COURSES[id], i = S.prog[id] || 0;
+  if (i >= c.lessons.length) return { title: `${c.short}: takrorlash`, sub: "1-oy dasturi tugadi, yozuvlaringizni takrorlang" };
+  return { title: `${c.short}: ${i + 1}-dars`, sub: c.lessons[i].t };
+}
+function buildPlan(d) {
+  const s = S.settings, dow = d.getDay(), wi = workInfo(d), wk = workoutFor(dow);
+  const W = wakeOf(d), tm = new Date(d); tm.setDate(d.getDate() + 1);
+  const NW = wakeOf(tm), bed = NW + 1440 - Math.round(s.sleepHours * 60);
+  const B = [], warn = []; let t = W;
+  const add = (len, k, title, sub, ico, col) => { len = Math.round(len); if (len <= 0) return; B.push({ k, start: t, end: t + len, title, sub, ico, col }); t += len; };
+  const tracks = lessonsFor(d), L1 = lessonInfo(tracks[0]), L2 = tracks[1] ? lessonInfo(tracks[1]) : null, EN = lessonInfo("en");
+  const gymNeed = wk.type === "gym" ? s.gymTravel * 2 + s.gymMin : wk.type === "active" ? 40 : 0;
+  const gymBlocks = () => {
+    if (wk.type === "gym") {
+      add(s.gymTravel, "g1", "Zalga yo'l", "Suv idishi, sochiq, naushnik", "🎒", "dim");
+      add(s.gymMin, "gym", `Sport zal: ${wk.name}`, wk.title, "🏋️", "rose");
+      add(s.gymTravel, "g2", "Zaldan qaytish", "Mashqdan keyin 1 soat ichida ovqatlaning", "🎒", "dim");
+    } else if (wk.type === "active") add(40, "gym", "Faol tiklanish", "Tez yurish, cho'zilish va mobillik", "🚶", "lilac");
+  };
+  let mGym = false;
+  add(15, "wake", "Uyg'onish", gymNeed ? "Bir stakan suv va banan: mashq oldidan yengil energiya" : "Bir stakan suv, deraza yonida tabiiy yorug'lik", "☀️", "sun");
+  if (wi) {
+    const leave = wi.start - s.commute, avail = leave - t;
+    mGym = gymNeed > 0 && (s.gymMode === "morning" || (s.gymMode === "auto" && avail - 45 - gymNeed >= 20));
+    let st = avail - 45 - (mGym ? gymNeed : 0);
+    if (st < 0) warn.push(`Ertalab ${-st} daqiqa yetmayapti. ${mGym ? "Ertaroq turing yoki zalni kechqurunga o'tkazing." : "Shu kuni ertaroq turing yoki nonushtani yo'lda yeng."}`);
+    st = Math.min(st, 90);
+    const stM = st >= 15;
+    if (stM) add(st, "st1", L1.title, L1.sub + ". Ertalab miya eng tiniq ishlaydi", "📘", "lilac");
+    if (mGym) gymBlocks();
+    add(20, "prep", mGym ? "Dush" : "Dush va tayyorgarlik", "Iliq dush, oxirida 30 soniya salqin suv", "🚿", "sky");
+    add(25, "bf", "Nonushta", BREAKFAST[dow].name, "🍳", "sun");
+    if (leave - t >= 10) add(leave - t, "free0", "Erkin vaqt", "Qisqa sayr yoki darsni takrorlash", "🌿", "teal");
+    t = leave;
+    add(s.commute, "c1", "Ishga yo'l", `Ingliz tili tinglash, so'zlarni takrorlash`, "🎧", "dim");
+    const len = wi.end - wi.start;
+    const ls = wi.custom ? wi.start + Math.round(len / 2 / 30) * 30 - 30 : toMin(s.lunchStart), le = ls + s.lunchMin;
+    if (len >= 300 && ls > wi.start && le < wi.end) {
+      add(ls - wi.start, "work1", "Ish", "Har 50 daqiqada 3–5 daqiqa turib yuring", "💼", "sky");
+      add(s.lunchMin, "lunch", "Obed", LUNCH[dow] + ". Asosiy ovqat shu bo'lsin", "🍲", "sun");
+      add(wi.end - le, "work2", "Ish", `${fmt(Math.min(le + 150, wi.end - 30))} atrofida tamaddi: yong'oq, qatiq yoki meva`, "💼", "sky");
+    } else add(len, "work", "Ish", "Har 50 daqiqada 3–5 daqiqa turib yuring", "💼", "sky");
+    add(s.commute, "c2", "Uyga yo'l", "Audiokitob yoki kunni xayolan yakunlash", "🎧", "dim");
+    let en = s.enMin, stE = stM ? 0 : 30, fr = bed - 30 - t - (gymNeed && !mGym ? gymNeed : 0) - 30 - en - stE;
+    if (fr < 0) { const c = Math.min(-fr, Math.max(0, en - 15)); en -= c; fr += c; }
+    if (fr < 0) warn.push(`Kechqurun ${-fr} daqiqa yetmayapti. Uyqu vaqtini kechiktirmang: zalni ertalabga o'tkazing.`);
+    if (gymNeed && !mGym) gymBlocks();
+    add(30, "dinner", "Kechki ovqat", "Yengil va oqsilga boy: tovuq, baliq, tvorog, sabzavot", "🍽️", "sun");
+    add(en, "en", EN.title, EN.sub, "🇬🇧", "lilac");
+    if (stE) add(stE, "st1", L1.title, L1.sub, "📘", "lilac");
+    if (fr >= 10) add(fr, "free", "Bo'sh vaqt", "Oila, suhbat, dam", "🌿", "teal");
+  } else {
+    add(20, "prep", "Dush va tayyorgarlik", "Dam kuni ham bir xil ritm", "🚿", "sky");
+    add(25, "bf", "Nonushta", BREAKFAST[dow].name, "🍳", "sun");
+    add(s.studyMin, "st1", L1.title, L1.sub, "📘", "lilac");
+    if (gymNeed) { gymBlocks(); if (wk.type === "gym") add(15, "sh", "Dush", "Mashqdan keyin iliq dush", "🚿", "sky"); }
+    if (t < 780) add(780 - t, "free1", "Erkin vaqt", "Sayr, uy ishlari, yaqinlar", "🌿", "teal");
+    add(40, "lunch", "Tushlik", LUNCH[dow], "🍲", "sun");
+    if (t < 960) add(960 - t, "free2", "Dam olish", "20 daqiqalik qisqa uyqu yoki sayr", "🌿", "teal");
+    if (L2) add(s.studyMin, "st2", L2.title, L2.sub, "📈", "lilac");
+    add(s.enMin + 15, "en", EN.title, EN.sub, "🇬🇧", "lilac");
+    const plan = dow === restDay() ? 20 : 0, dAt = Math.min(1140, bed - 30 - plan - 30);
+    if (dAt - t >= 10) add(dAt - t, "free3", "Bo'sh vaqt", "Oila, do'stlar, hobbi", "🌿", "teal");
+    add(30, "dinner", "Kechki ovqat", "Oqsil, sabzavot va uglevod", "🍽️", "sun");
+    if (bed - 30 - plan - t >= 10) add(bed - 30 - plan - t, "free4", "Kechki dam", "Kitob, suhbat, film", "🛋️", "teal");
+    if (plan) add(20, "plan", "Haftalik tahlil", "O'tgan hafta natijasi va keyingi haftaning 3 maqsadi", "🗓️", "sky");
+    if (t > bed - 30) warn.push("Dam kuni rejasi sig'mayapti. Dars yoki mashq vaqtini qisqartiring.");
+  }
+  if (t < bed - 30) t = bed - 30;
+  add(30, "wd", "Uyquga tayyorgarlik", "Ekransiz, xira yorug'lik, xona salqin", "🌙", "lilac");
+  B.push({ k: "sleep", start: Math.max(bed, t), end: NW + 1440, title: "Uyqu", sub: `${s.sleepHours} soat: mushak va xotira aynan uyquda tiklanadi`, ico: "😴", col: "sleep" });
+  const free = B.filter(b => b.k.startsWith("free")).reduce((a, b) => a + b.end - b.start, 0);
+  return { blocks: B, warn, wake: W, bed, free, work: wi, wk, dow, mGym, tracks };
+}
+
+/* ================= state ================= */
+let sel = new Date(), tab = "bugun", editShift = false, openEx = {};
+const isToday = d => dkey(d) === dkey(new Date());
+function nowMin(P) { const n = new Date(); let m = n.getHours() * 60 + n.getMinutes() + n.getSeconds() / 60; if (m < P.wake) m += 1440; return m; }
+function score(d) {
+  const P = buildPlan(d), D = day(dkey(d)), bl = P.blocks.filter(b => b.k !== "sleep");
+  return Math.round((bl.filter(b => D.done.includes(b.k)).length + D.habits.length) / (bl.length + HABITS.length) * 100);
+}
+
+/* ================= dial ================= */
+function pt(min, r) { const a = (min / 1440) * Math.PI * 2 - Math.PI / 2; return [160 + r * Math.cos(a), 160 + r * Math.sin(a)]; }
+function arc(s, e, r) { const [x1, y1] = pt(s, r), [x2, y2] = pt(e, r); return `M${x1.toFixed(2)} ${y1.toFixed(2)} A${r} ${r} 0 ${e - s > 720 ? 1 : 0} 1 ${x2.toFixed(2)} ${y2.toFixed(2)}`; }
+function renderDial() {
+  const P = buildPlan(sel), today = isToday(sel), now = today ? nowMin(P) : -1;
+  let g = `<circle cx="160" cy="160" r="128" fill="none" stroke="rgba(239,230,210,.06)" stroke-width="22"/>`;
+  for (let h = 0; h < 24; h++) { const [a, b] = pt(h * 60, 150), [c, dd] = pt(h * 60, h % 6 ? 146 : 142); g += `<line x1="${a}" y1="${b}" x2="${c}" y2="${dd}" stroke="${h % 6 ? "rgba(239,230,210,.18)" : "rgba(239,230,210,.5)"}" stroke-width="${h % 6 ? 1 : 2}" stroke-linecap="round"/>`; }
+  [[0, "00"], [360, "06"], [720, "12"], [1080, "18"]].forEach(([m, l]) => { const [x, y] = pt(m, 106); g += `<text x="${x}" y="${y + 4}" text-anchor="middle" font-size="11" fill="#6b7364" font-family="Manrope, sans-serif">${l}</text>`; });
+  P.blocks.forEach(b => { const s = b.start + 2, e = Math.max(b.end - 2, s + 1); g += `<path d="${arc(s, e, 128)}" fill="none" stroke="${COL[b.col]}" stroke-width="${/^work|sleep/.test(b.k) ? 14 : 22}" opacity="${today && b.end <= now ? .35 : .95}"/>`; });
+  if (today) { const [x, y] = pt(now, 128); g += `<g class="sun-dot"><circle cx="${x}" cy="${y}" r="16" fill="rgba(236,212,156,.18)"/><circle class="core" cx="${x}" cy="${y}" r="9" fill="#ecd49c" stroke="#0b110f" stroke-width="3"/></g>`; }
+  $("#dial").innerHTML = g;
+}
+function renderHero() {
+  const P = buildPlan(sel), n = new Date();
+  $("#clock").innerHTML = `${pad(n.getHours())}:${pad(n.getMinutes())}<span>${pad(n.getSeconds())}</span>`;
+  if (!isToday(sel)) {
+    $("#dialNow").textContent = DAYS[sel.getDay()];
+    $("#dialLeft").textContent = `${P.work ? "Ish kuni" : "Dam olish kuni"}, ${P.wk.name}`;
+    $("#nextLine").innerHTML = `<button class="back-today" data-act="today">Bugunga qaytish</button>`;
+    return;
+  }
+  const now = nowMin(P), cur = P.blocks.find(b => now >= b.start && now < b.end), nxt = P.blocks.find(b => b.start > now);
+  if (cur) {
+    const left = Math.max(0, Math.round((cur.end - now) * 60)), h = Math.floor(left / 3600), m = Math.floor(left % 3600 / 60), s = left % 60;
+    $("#dialNow").textContent = `${cur.ico} ${cur.title}`;
+    $("#dialLeft").textContent = `${h ? h + ":" + pad(m) : m}:${pad(s)} qoldi`;
+  } else { $("#dialNow").textContent = "Erkin vaqt"; $("#dialLeft").textContent = ""; }
+  $("#nextLine").innerHTML = nxt ? `<span>Keyingi:</span><span class="pill">${nxt.ico} <b>${nxt.title}</b> ${fmt(nxt.start)} da</span>` : "";
+}
+
+/* ================= top + week ================= */
+function renderTop() {
+  const n = new Date(), h = n.getHours(), rk = RANKS[rankOf(totalXP())][0], nm = `, <b>${rk}${S.settings.name ? " " + esc(S.settings.name) : ""}</b>`;
+  $("#hello").innerHTML = (h < 5 ? "Xayrli tun" : h < 11 ? "Xayrli tong" : h < 17 ? "Xayrli kun" : "Xayrli kech") + nm;
+  $("#todayDate").textContent = `${DAYS[n.getDay()]}, ${n.getDate()}-${MONTHS[n.getMonth()]}`;
+}
+function weekDates() { const t = new Date(); t.setHours(12, 0, 0, 0); t.setDate(t.getDate() - (t.getDay() + 6) % 7); return [...Array(7)].map((_, i) => { const d = new Date(t); d.setDate(t.getDate() + i); return d; }); }
+function renderWeek() {
+  $("#week").innerHTML = weekDates().map(d => {
+    const wk = workoutFor(d.getDay()), c = [isToday(d) ? "is-today" : "", dkey(d) === dkey(sel) ? "is-sel" : "", workInfo(d) ? "" : "off"].join(" ");
+    return `<button class="wd ${c}" data-act="sel" data-d="${dkey(d)}" aria-label="${DAYS[d.getDay()]}">${DS[d.getDay()]}<b>${d.getDate()}</b><i style="background:${wk.color}"></i></button>`;
+  }).join("");
+}
+
+/* ================= today ================= */
+function health(P) {
+  const s = S.settings, out = [];
+  out.push([s.sleepHours >= 7, s.sleepHours >= 7 ? `Uyqu ${s.sleepHours} soat: kattalar uchun tavsiya etilgan 7–9 soat oralig'ida.` : `Uyqu ${s.sleepHours} soat: kam. Kamida 7 soat kerak, aks holda tiklanish va diqqat pasayadi.`]);
+  out.push([P.bed <= 1440, P.bed <= 1440 ? `Yotish ${fmt(P.bed)}: yarim tungacha. Chuqur uyquning asosiy qismi tunning birinchi yarmiga to'g'ri keladi.` : `Yotish ${fmt(P.bed)}: kech. 23:00–00:00 gacha yotishga harakat qiling.`]);
+  const dn = P.blocks.find(b => b.k === "dinner");
+  if (dn) { const g = P.bed - dn.end; out.push([g >= 90, g >= 90 ? `Kechki ovqat uyqudan ${dur(g)} oldin tugaydi: hazm uchun yetarli.` : `Kechki ovqat uyquga juda yaqin (${dur(g)}). Yengil ovqat tanlang.`]); }
+  const gy = P.blocks.find(b => b.k === "gym");
+  if (gy) { const g = P.bed - gy.end; out.push([g >= 150, g >= 150 ? `Mashq ${P.mGym ? "ertalab" : "kechqurun"}, uyqudan ${dur(g)} oldin tugaydi.` : `Mashq uyquga juda yaqin tugaydi. Kuchli mashq uyquni buzishi mumkin, ertalabga o'tkazing.`]); }
+  const dw = Math.abs(toMin(s.wakeOff) - toMin(s.wake));
+  out.push([dw <= 60, dw <= 60 ? "Dam kunlari ham uyg'onish vaqti deyarli bir xil: biologik soat barqaror." : `Ish va dam kunlari uyg'onish farqi ${dur(dw)}: 1 soatdan oshmagani ma'qul.`]);
+  return out;
+}
+function insights(P, D) {
+  const out = [], s = S.settings;
+  if (!isToday(sel)) { out.push(["🗓️", `${DAYS[P.dow]}: ${P.work ? "ish kuni" : "dam olish kuni"}, mashg'ulot: ${P.wk.name.toLowerCase()}. Uyg'onish ${fmt(P.wake)}, yotish ${fmt(P.bed)}.`]); return out; }
+  const now = nowMin(P), passed = Math.min(1, Math.max(0, (now - P.wake) / (P.bed - P.wake)));
+  const expect = Math.floor(s.waterGoal * passed);
+  if (D.water < expect - 1) out.push(["💧", `Suv ortda: hozirgacha ${expect} stakan bo'lishi kerak edi, siz ${D.water} ta ichdingiz.`]);
+  const gy = P.blocks.find(b => b.k === "gym");
+  if (gy && now < gy.start && P.wk.type === "gym") out.push(["🏋️", `Bugun ${P.wk.name}: ${P.wk.title.toLowerCase()}. «Zal» bo'limida har mashq qanday bajarilishi ko'rsatilgan.`]);
+  if (gy && now >= gy.end && now < gy.end + 90 && P.wk.type === "gym") out.push(["🥩", "Mashq tugadi. Keyingi 1 soatda oqsilga boy ovqat tiklanishni tezlashtiradi."]);
+  if (P.bed - now <= 60 && P.bed - now > 0) out.push(["🌙", `${Math.round(P.bed - now)} daqiqadan keyin uyqu. Ekran yorqinligini pasaytiring.`]);
+  if (P.wk.type === "rest") out.push(["🛌", "Bugun dam kuni. Mushaklar dam olayotganda o'sadi."]);
+  const st = P.blocks.find(b => b.k === "st1");
+  if (st && now < st.end) out.push(["📘", `${fmt(st.start)} da ${st.title.toLowerCase()}: «${st.sub.split(".")[0]}». Darsni «O'qish» bo'limida oching.`]);
+  if (!out.length) out.push(["✨", "Kichik qadamlar har kuni takrorlansa, katta natija beradi."]);
+  return out.slice(0, 3);
+}
+function renderToday() {
+  const P = buildPlan(sel), k = dkey(sel), D = day(k), today = isToday(sel), now = today ? nowMin(P) : -1, o = S.over[k];
+  let h = `<div class="box shift"><div><small>Ish grafigi, ${DAYS[sel.getDay()].toLowerCase()}</small><b>${P.work ? `${fmt(P.work.start)}–${fmt(P.work.end)}` : "Dam olish kuni"}</b>${o ? `<span class="tag">o'zgartirilgan</span>` : ""}</div><button class="sbtn" data-act="shiftEdit">${editShift ? "Yopish" : "O'zgartirish"}</button></div>`;
+  if (editShift) h += `<div class="shift-edit"><label>Boshlanishi<input type="time" id="ovS" value="${P.work ? fmt(P.work.start) : S.settings.workStart}"></label><label>Tugashi<input type="time" id="ovE" value="${P.work ? fmt(P.work.end) : S.settings.workEnd}"></label>
+    <div class="row"><button class="btn" data-act="ovSave">Saqlash</button><button class="sbtn" data-act="ovOff">Bugun dam olaman</button>${o ? `<button class="sbtn" data-act="ovReset">Odatiy grafik</button>` : ""}</div></div>`;
+  h += P.warn.map(w => `<div class="warn">${w}</div>`).join("");
+  h += `<div class="stats"><div class="stat"><small>Bo'sh vaqt</small><b>${dur(P.free)}</b></div><div class="stat"><small>Yotish</small><b>${fmt(P.bed)}</b></div><div class="stat"><small>Bajarildi</small><b>${score(sel)}%</b></div></div>`;
+  h += `<div class="tips">${insights(P, D).map(([i, t]) => `<div class="tip"><span>${i}</span><div>${t}</div></div>`).join("")}</div>`;
+  h += `<div class="sec"><h2>Kun tartibi</h2><span>Bajarganda belgilang</span></div><div class="box">`;
+  h += P.blocks.map(b => {
+    const cur = today && now >= b.start && now < b.end, past = today && b.end <= now, done = D.done.includes(b.k);
+    return `<button class="tl-item ${cur ? "cur" : ""} ${past ? "past" : ""} ${done ? "done" : ""}" data-act="blk" data-k="${b.k}" style="--c:${COL[b.col]}">
+      <div class="tl-time">${fmt(b.start)}<small>${dur(b.end - b.start)}</small></div>
+      <div class="tl-body"><div class="tl-title">${b.ico} ${b.title}</div><div class="tl-sub">${esc(b.sub)}</div>${cur ? `<div class="tl-bar"><i style="width:${(now - b.start) / (b.end - b.start) * 100}%"></i></div>` : ""}</div>
+      <div class="tl-check">${b.k === "sleep" ? "" : CHECK}</div></button>`;
+  }).join("") + `</div>`;
+  const hc = health(P);
+  h += `<div class="sec"><h2>Salomatlik tekshiruvi</h2><span>${hc.filter(x => x[0]).length} / ${hc.length}</span></div><div class="box">${hc.map(([ok, t]) => `<div class="hc"><i class="${ok ? "ok" : "no"}">${ok ? "✓" : "!"}</i><div>${t}</div></div>`).join("")}
+    <details class="why"><summary>Nega yarim tungacha uxlash muhim?</summary>
+    <p>Tunda uyqu bir necha sikldan iborat. Chuqur uyqu asosan tunning birinchi yarmida, ayniqsa uxlab qolganingizdan keyingi 2–3 soatda bo'ladi. O'sish gormoni ham aynan shu chuqur uyqu bilan birga ajraladi, u mushak tiklanishi uchun muhim.</p>
+    <p>Organizm qorong'ilikka qarab melatonin ishlab chiqaradi. Soat 3 da yotib, kunduzi uxlasangiz, uyqu yorug'lik va ichki soatga mos kelmaydi, sifati pasayadi. Shuning uchun eng muhimi: har kuni bir xil vaqtda, imkon qadar 23:00–00:00 gacha yotish va 7–9 soat uxlash.</p></details></div>`;
+  h += waterHTML(D);
+  h += `<div class="sec"><h2>Odatlar</h2><span>${D.habits.length} / ${HABITS.length}</span></div><div class="box">` +
+    HABITS.map((x, i) => `<button class="habit ${D.habits.includes(i) ? "done" : ""}" data-act="hab" data-i="${i}"><span>${x}</span><span class="tl-check">${CHECK}</span></button>`).join("") + `</div>`;
+  $("#v-bugun").innerHTML = h;
+}
+function waterHTML(D) {
+  const g = S.settings.waterGoal, drop = on => `<svg viewBox="0 0 24 30"><path d="M12 2C12 2 3 13 3 19a9 9 0 0 0 18 0C21 13 12 2 12 2z" fill="${on ? "#86b4c4" : "none"}" stroke="${on ? "#86b4c4" : "#6b7364"}" stroke-width="1.6"/></svg>`;
+  return `<div class="sec"><h2>Suv</h2><span>${D.water} / ${g} stakan</span></div><div class="box water"><button class="round" data-act="w-" aria-label="Kamaytirish">−</button>
+  <div class="drops">${[...Array(Math.max(g, D.water))].map((_, i) => `<span class="drop">${drop(i < D.water)}</span>`).join("")}</div>
+  <button class="round" data-act="w+" aria-label="Qo'shish" style="background:var(--sky);color:var(--night);border-color:var(--sky)">+</button></div>`;
+}
+
+/* ================= gym ================= */
+function renderGym() {
+  const dow = sel.getDay(), wk = workoutFor(dow), D = day(dkey(sel)), P = buildPlan(sel);
+  const gy = P.blocks.find(b => b.k === "gym"), n = wk.ex.length, dn = wk.ex.filter(e => D.ex[e.id]).length;
+  let h = `<div class="gym-hero" style="--gc:${wk.color}"><div class="gym-day">${DAYS[dow]}${isToday(sel) ? ", bugun" : ""}${gy ? `, ${fmt(gy.start)} da` : ""}</div>
+    <div class="gym-name">${wk.name}</div><div class="gym-title">${wk.title}</div>
+    <div class="chips">${wk.muscles.map(m => `<span class="chip">${m}</span>`).join("")}</div>
+    ${n ? `<div class="prog"><i style="width:${dn / n * 100}%"></i></div><div class="small muted" style="margin-top:6px">${dn} / ${n} mashq bajarildi</div>` : ""}</div>`;
+  if (wk.type === "rest") {
+    h += `<div class="sec"><h2>Bugun nima qilish kerak</h2></div><div class="box rules">
+      <div><span>1</span>7–9 soat uxlang. Mushak tiklanishining asosiy qismi uyquda bo'ladi.</div>
+      <div><span>2</span>Oqsilni odatdagidek iste'mol qiling, dam kuni ham mushak qurilmoqda.</div>
+      <div><span>3</span>20–30 daqiqa sayr qiling, qon aylanishi tiklanishni tezlashtiradi.</div>
+      <div><span>4</span>Haftani tahlil qiling: qaysi mashqda vazn oshdi, qayerda to'xtab qoldingiz.</div></div>`;
+  } else {
+    if (wk.type === "gym") h += `<div class="sec"><h2>Qizish</h2><span>8–10 daq</span></div><div class="box small muted">5 daqiqa yengil kardio (yo'lak yoki velotrenajyor), yelka va son bo'g'imlarini aylantirish, so'ng birinchi mashqdan 2 ta yengil set: ishchi vaznning 50% va 70% i bilan.</div>`;
+    h += `<div class="sec"><h2>Mashqlar</h2><span>Rasmni bosing</span></div><div class="box">`;
+    h += wk.ex.map((e, i) => {
+      const w = S.weights[e.id], done = D.ex[e.id], open = openEx[e.id], showKg = wk.type === "gym" && !/plank/.test(e.id);
+      return `<div class="ex ${done ? "done" : ""} ${open ? "open" : ""}">
+        <div class="ex-top"><button data-act="exOpen" data-id="${e.id}" style="background:none;border:0;padding:0" aria-label="${e.n}: qanday bajariladi">${figHTML(e.anim, e.tool)}</button>
+        <div><div class="ex-name">${i + 1}. ${e.n}</div><div class="ex-meta">${e.sets} × ${e.reps}${e.rest !== "—" ? `, dam ${e.rest}` : ""}</div>
+          <div class="ex-act">${showKg ? `<input type="number" inputmode="decimal" step="0.5" min="0" data-act="kg" data-id="${e.id}" value="${w ? w.w : ""}" placeholder="kg" aria-label="Vazn"><small>${w && w.prev != null ? `oldin ${w.prev} kg ${w.w > w.prev ? "↑" : w.w < w.prev ? "↓" : ""}` : "kg"}</small>` : ""}
+          ${e.rest !== "—" ? `<button class="mini" data-act="rest" data-r="${e.rest}">⏱ Dam</button>` : ""}<button class="mini" data-act="exOpen" data-id="${e.id}">${open ? "Yopish" : "Qanday?"}</button></div></div>
+        <button class="tl-check" data-act="ex" data-id="${e.id}" aria-label="Bajarildi" style="${done ? "background:var(--teal);border-color:var(--teal)" : ""}">${done ? CHECK.replace("<svg", '<svg style="opacity:1"') : CHECK}</button></div>
+        ${open ? `<div class="how">${figHTML(e.anim, e.tool, 1)}<h4>Bajarish tartibi</h4><ol>${e.steps.map(x => `<li>${x}</li>`).join("")}</ol><h4>Ko'p uchraydigan xatolar</h4><ul>${e.err.map(x => `<li>${x}</li>`).join("")}</ul>
+          <a class="yt" href="https://www.youtube.com/results?search_query=${encodeURIComponent(e.en + " proper form")}" target="_blank" rel="noopener">▶ Videoda ko'rish (YouTube)</a></div>` : ""}
+      </div>`;
+    }).join("") + `</div>`;
+    if (wk.type === "gym") h += `<div class="sec"><h2>O'sish qoidasi</h2></div><div class="box rules">
+      <div><span>1</span>Barcha setlarda takror oralig'ining yuqori chegarasini bajarsangiz, keyingi safar vaznni 2.5 kg oshiring.</div>
+      <div><span>2</span>Har setda 1–2 takror zaxira qoldiring. Texnika buzilsa, set tugadi.</div>
+      <div><span>3</span>Har 6–8 haftada bir hafta yengil ishlang (vaznning 60% i).</div></div>`;
+  }
+  h += `<div class="sec"><h2>Haftalik bo'linma</h2></div><div class="box">` + [1, 2, 3, 4, 5, 6, 0].map(i => {
+    const w = workoutFor(i);
+    return `<div class="split-row ${i === dow ? "on" : ""}"><b>${DS[i]}</b><div class="sw"><i style="background:${w.color}"></i><span><b>${w.name}</b> <span class="muted">${w.title}</span></span></div></div>`;
+  }).join("") + `</div>`;
+  $("#v-zal").innerHTML = h;
+}
+
+/* ================= learn ================= */
+function renderLearn() {
+  const tk = dkey(new Date()), log = S.learn[tk] || [], tracks = ["en", ...lessonsFor(sel)];
+  let h = `<div class="sec" style="margin-top:0"><h2>${isToday(sel) ? "Bugungi darslar" : DAYS[sel.getDay()] + " darslari"}</h2><span>${tracks.length} ta</span></div>`;
+  h += tracks.map(id => {
+    const c = COURSES[id], i = S.prog[id] || 0, n = c.lessons.length, didToday = log.includes(id);
+    if (i >= n) return `<div class="lesson" style="--lc:${c.color}"><div class="lh"><span>${c.ico} ${c.name}</span><span>${n} / ${n}</span></div><h3>1-oy dasturi yakunlandi</h3><div class="muted">Yozuvlaringiz va vazifalaringizni takrorlang. Keyingi bosqich darslari keyingi versiyada qo'shiladi.</div></div>`;
+    const L = c.lessons[i];
+    return `<div class="lesson" style="--lc:${c.color}"><div class="lh"><span>${c.ico} ${c.name}</span><span>${i + 1}-dars, ${n} tadan</span></div>
+      ${didToday ? `<div class="donebadge" style="margin-top:8px">✓ Bugungi dars bajarildi. Xohlasangiz keyingisini ham o'qing</div>` : ""}
+      <h3>${L.t}</h3><ul>${L.k.map(x => `<li>${x}</li>`).join("")}</ul>
+      <div class="task"><b>Amaliy vazifa</b>${L.task}</div>
+      ${id === "tr" ? `<div class="disc">O'quv maqsadida. Bu moliyaviy maslahat emas: haqiqiy pul bilan savdo yo'qotish xavfiga ega.</div>` : ""}
+      <div class="res-links"><a class="lnk" href="https://www.youtube.com/results?search_query=${encodeURIComponent(lessonQ(id, i))}" target="_blank" rel="noopener">▶ Video dars</a>${c.site ? `<a class="lnk" href="${c.site[1]}" target="_blank" rel="noopener">🌐 ${c.site[0]}</a>` : ""}${c.site2 ? `<a class="lnk" href="${c.site2[1]}" target="_blank" rel="noopener">🌐 ${c.site2[0]}</a>` : ""}</div>
+      <button class="btn" data-act="lesson" data-c="${id}">Darsni tugatdim</button></div>`;
+  }).join("");
+  h += `<div class="sec"><h2>Kurslar</h2><span>1-oy dasturi</span></div><div class="box">` + Object.entries(COURSES).map(([id, c]) => {
+    const i = Math.min(S.prog[id] || 0, c.lessons.length), n = c.lessons.length;
+    return `<div class="course" style="--lc:${c.color}"><div class="ch"><span>${c.ico} ${c.name}</span><span class="muted">${i} / ${n}</span></div><div class="prog"><i style="width:${i / n * 100}%"></i></div>
+      <details><summary>Barcha darslar</summary>${c.lessons.map((l, j) => `<div class="ll ${j < i ? "d" : j === i ? "n" : ""}"><span>${j + 1}.</span><span>${l.t}</span></div>`).join("")}
+      <div class="small muted" style="margin-top:8px">Qo'shimcha manbalar: ${c.res}</div></details></div>`;
+  }).join("") + `</div>`;
+  h += `<div class="sec"><h2>Qanday taqsimlangan</h2></div><div class="box rules">
+    <div><span>1</span>Ingliz tili har kuni: kechqurun dars, ishga yo'lda tinglash va so'z takrorlash.</div>
+    <div><span>2</span>Ish kunlari ertalab, miya tiniq paytda, biznes va trading navbat bilan.</div>
+    <div><span>3</span>Dam kunlari ikkala kurs ham, uzunroq sessiyalar bilan.</div>
+    <div><span>4</span>Kun o'tkazib yuborilsa, dars yo'qolmaydi: keyingi safar shu joydan davom etasiz.</div></div>`;
+  $("#v-oqish").innerHTML = h;
+}
+
+/* ================= food ================= */
+function renderFood() {
+  const dow = sel.getDay(), P = buildPlan(sel), bf = BREAKFAST[dow], D = day(dkey(sel));
+  const at = k => { const b = P.blocks.find(x => x.k === k); return b ? b.start : null; };
+  let h = `<div class="bf"><div class="small muted">${DAYS[dow]} nonushtasi, ${fmt(at("bf"))} da${P.mGym ? ", mashqdan keyin" : ""}</div><h3>${bf.name}</h3>
+    <div>${bf.items}</div><div class="small muted" style="margin-top:8px">${bf.why}</div><span class="p">≈ ${bf.p} g oqsil</span></div>`;
+  const meals = [];
+  if (P.mGym) meals.push([at("wake"), "Mashqdan oldin", "Banan va bir stakan suv: och qoringa og'ir mashq qilmang"]);
+  meals.push([at("bf"), "Nonushta", bf.name]);
+  if (at("lunch") != null) meals.push([at("lunch"), P.work ? "Obed" : "Tushlik", LUNCH[dow] + ". Kunning eng to'yimli ovqati"]);
+  if (P.work) { const w2 = P.blocks.find(b => b.k === "work2"); if (w2) meals.push([Math.min(w2.start + 150, w2.end - 30), "Tamaddi", "Yong'oq, qatiq, meva yoki 2 qaynatilgan tuxum"]); }
+  else meals.push([16 * 60, "Tamaddi", "Meva va yong'oq"]);
+  meals.push([at("dinner"), "Kechki ovqat", P.work ? "Yengil, oqsilga boy: tovuq yoki baliq, sabzavot, ozroq guruch" : "Go'sht yoki baliq, sabzavot, uglevod"]);
+  h += `<div class="sec"><h2>Kunlik ovqat sxemasi</h2></div><div class="box">` + meals.filter(m => m[0] != null).map(m => `<div class="meal"><div class="t">${fmt(m[0])}</div><div><b>${m[1]}</b><div class="small muted">${m[2]}</div></div></div>`).join("") + `</div>`;
+  h += `<div class="sec"><h2>Mushak o'sishi uchun asoslar</h2></div><div class="box rules">
+    <div><span>1</span>Har ovqatda oqsil: go'sht, tovuq, baliq, tuxum, tvorog, dukkaklilar. Mo'ljal: tana vaznining har kilosiga kuniga 1.6–2 g.</div>
+    <div><span>2</span>Sarflaganingizdan biroz ko'proq yeng. Haftasiga 0.25–0.5 kg o'sish — sog'lom sur'at.</div>
+    <div><span>3</span>Uglevoddan qo'rqmang: guruch, grechka, suli, kartoshka mashqqa energiya beradi.</div>
+    <div><span>4</span>Kechki ovqat uyqudan kamida 1.5 soat oldin va yengil bo'lsin.</div>
+    <div><span>5</span>Kuniga ${S.settings.waterGoal} stakan suv, zal kunlari yana 1–2 stakan.</div></div>`;
+  h += waterHTML(D);
+  $("#v-ovqat").innerHTML = h;
+}
+
+/* ================= ranks & XP ================= */
+const RANKS = [
+  ["Oddiy askar", 0], ["Efreytor", 300], ["Kichik serjant", 800], ["Serjant", 1500], ["Katta serjant", 2500], ["Starshina", 4000],
+  ["Kichik leytenant", 6000], ["Leytenant", 8500], ["Katta leytenant", 11500], ["Kapitan", 15000],
+  ["Mayor", 19500], ["Podpolkovnik", 25000], ["Polkovnik", 31500],
+  ["General-mayor", 39000], ["General-leytenant", 48000], ["General-polkovnik", 58000], ["Armiya generali", 70000]
+];
+const CHALLENGES = [
+  ["gym", "Bugungi barcha mashqlarni bajaring", "🏋️", k => { const D = S.days[k], w = workoutFor(new Date(k + "T12:00").getDay()); return !!(D && w.ex.length && w.ex.every(e => D.ex[e.id])); }],
+  ["water", "Suv me'yorini to'ldiring", "💧", k => !!(S.days[k] && S.days[k].water >= S.settings.waterGoal)],
+  ["learn2", "Kamida 2 ta dars o'qing", "🎓", k => (S.learn[k] || []).length >= 2],
+  ["habits", "6 ta odatning hammasini bajaring", "🔥", k => !!(S.days[k] && S.days[k].habits.length >= 6)],
+  ["plan", "Kun tartibining 80% ini bajaring", "🗓️", k => score(new Date(k + "T12:00")) >= 80],
+  ["sleep", "Uxlashdan oldin 30 daqiqa telefonsiz", "🌙", k => !!(S.days[k] && S.days[k].habits.includes(5))],
+  ["posture", "Qad uchun 10 daqiqalik mashqni bajaring", "🧍", k => !!(S.days[k] && S.days[k].posture)]
+];
+function dayChallenges(k) {
+  const d = new Date(k + "T12:00"), w = workoutFor(d.getDay()), seed = d.getDate() * 7 + d.getMonth() * 3;
+  const pool = CHALLENGES.filter(c => c[0] !== "gym" || w.ex.length);
+  const out = []; let i = seed;
+  for (let j = 0; out.length < 3 && j < 40; j++) { const c = pool[(i + j * 5) % pool.length]; if (!out.includes(c)) out.push(c); }
+  return out;
+}
+function dayXP(k) {
+  const D = S.days[k]; let x = 0;
+  if (D) {
+    x += D.done.length * 5 + D.habits.length * 10 + Object.values(D.ex).filter(Boolean).length * 10 + (D.water >= S.settings.waterGoal ? 15 : 0) + (D.posture ? 20 : 0);
+    const w = workoutFor(new Date(k + "T12:00").getDay()); if (w.ex.length && w.ex.every(e => D.ex[e.id])) x += 40;
+  }
+  x += (S.learn[k] || []).length * 40;
+  x += dayChallenges(k).filter(c => c[3](k)).length * 50;
+  return x;
+}
+function totalXP() {
+  const keys = new Set([...Object.keys(S.days), ...Object.keys(S.learn)]);
+  let x = 0; keys.forEach(k => x += dayXP(k));
+  return x + S.body.length * 20 + S.height.length * 20;
+}
+function rankOf(xp) { let i = 0; RANKS.forEach((r, j) => { if (xp >= r[1]) i = j; }); return i; }
+function starPath(cx, cy, r) { let p = ""; for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? r * .45 : r; p += (i ? "L" : "M") + (cx + rr * Math.cos(a)).toFixed(1) + " " + (cy + rr * Math.sin(a)).toFixed(1); } return p + "Z"; }
+function pogon(i) {
+  const gen = i >= 13, off = i >= 6 && !gen, senior = i >= 10 && !gen;
+  const base = gen ? "#c9a24e" : "#2f3d2c", edge = gen ? "#8a6a24" : "#d4af6a";
+  let s = `<svg class="pogon" viewBox="0 0 300 90" aria-hidden="true"><defs><linearGradient id="pg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="${gen ? "#e6c77a" : "#3a4a36"}"/><stop offset="1" stop-color="${base}"/></linearGradient></defs>
+    <path d="M30 8H270a12 12 0 0 1 12 12v50a12 12 0 0 1-12 12H30L8 45Z" fill="url(#pg)" stroke="${edge}" stroke-width="3"/>`;
+  if (gen) for (let x = 50; x < 270; x += 16) s += `<path d="M${x} 18l8 54" stroke="#b08a3a" stroke-width="2" opacity=".6"/>`;
+  if (off) { s += `<rect x="40" y="${senior ? 32 : 42}" width="230" height="5" fill="#d4af6a" opacity=".85"/>`; if (senior) s += `<rect x="40" y="53" width="230" height="5" fill="#d4af6a" opacity=".85"/>`; }
+  s += `<circle cx="40" cy="45" r="9" fill="${gen ? "#8a6a24" : "#d4af6a"}"/><circle cx="40" cy="45" r="4" fill="${gen ? "#e6c77a" : "#2f3d2c"}"/>`;
+  const gold = gen ? "#5a3f10" : "#e8c97f";
+  if (i >= 1 && i <= 3) for (let n = 0; n < i; n++) s += `<rect x="${200 - n * 18}" y="14" width="8" height="62" rx="2" fill="${gold}"/>`;
+  if (i === 4) s += `<rect x="186" y="14" width="22" height="62" rx="3" fill="${gold}"/>`;
+  if (i === 5) s += `<rect x="176" y="14" width="22" height="62" rx="3" fill="${gold}"/><rect x="210" y="14" width="8" height="62" rx="2" fill="${gold}"/>`;
+  if (off) {
+    const n = senior ? i - 9 : i - 5, r = senior ? 13 : 9;
+    for (let k = 0; k < n; k++) s += `<path d="${starPath(110 + k * 40, 45, r)}" fill="${gold}"/>`;
+  }
+  if (gen) { const n = i - 12; for (let k = 0; k < n; k++) s += `<path d="${starPath(110 + k * 44, 45, 16)}" fill="${gold}" stroke="#7a5a18" stroke-width="1"/>`; }
+  return s + `</svg>`;
+}
+const BADGES = [
+  ["🥇", "Birinchi qadam", "Birinchi XP", () => totalXP() > 0],
+  ["🔥", "Temir iroda", "7 kun ketma-ket odatlar", () => streakBy(k => S.days[k] && S.days[k].habits.length >= 4) >= 7],
+  ["🏋️", "Zal faxriysi", "20 ta mashg'ulot kuni", () => Object.values(S.days).filter(D => Object.values(D.ex).some(Boolean)).length >= 20],
+  ["🎓", "Bilimdon", "20 ta dars", () => Object.values(S.prog).reduce((a, b) => a + b, 0) >= 20],
+  ["🇬🇧", "B1 ga yo'l", "Ingliz tili 1-bosqich", () => (S.prog.en || 0) >= COURSES.en.lessons.length],
+  ["💧", "Suv ustasi", "14 kun suv me'yori", () => Object.values(S.days).filter(D => D.water >= S.settings.waterGoal).length >= 14],
+  ["☀️", "Erta turuvchi", "10 kun o'z vaqtida turish", () => Object.values(S.days).filter(D => D.habits.includes(0)).length >= 10],
+  ["🧍", "Tik qad", "15 marta qad mashqi", () => Object.values(S.days).filter(D => D.posture).length >= 15]
+];
+
+/* ================= profile ================= */
+function streakBy(fn) { let c = 0; const d = new Date(); d.setHours(12); if (!fn(dkey(d))) d.setDate(d.getDate() - 1); while (fn(dkey(d))) { c++; d.setDate(d.getDate() - 1); } return c; }
+function chart(arr, unit) {
+  if (arr.length < 2) return "";
+  const ws = arr.map(b => b.v), mn = Math.min(...ws) - .5, mx = Math.max(...ws) + .5, pts = arr.map((b, i) => [10 + i * (300 / (arr.length - 1)), 100 - (b.v - mn) / (mx - mn) * 85]), diff = (ws[ws.length - 1] - ws[0]).toFixed(1);
+  return `<div class="small muted">${arr[0].d} dan beri: <b style="color:var(--sand)">${diff > 0 ? "+" : ""}${diff} ${unit}</b></div><svg class="spark" viewBox="0 0 320 110" preserveAspectRatio="none"><defs><linearGradient id="sg${unit}" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#d4af6a" stop-opacity=".35"/><stop offset="1" stop-color="#d4af6a" stop-opacity="0"/></linearGradient></defs>
+    <path d="M${pts.map(p => p.join(" ")).join(" L")} L${pts[pts.length - 1][0]} 110 L10 110Z" fill="url(#sg${unit})"/><polyline points="${pts.map(p => p.join(",")).join(" ")}" fill="none" stroke="#d4af6a" stroke-width="2.5" vector-effect="non-scaling-stroke" stroke-linejoin="round"/></svg>`;
+}
+function renderProfile() {
+  const s = S.settings, xp = totalXP(), ri = rankOf(xp), next = RANKS[ri + 1], cur = RANKS[ri];
+  const pct = next ? (xp - cur[1]) / (next[1] - cur[1]) * 100 : 100, tk = dkey(new Date());
+  const W = S.body.length ? S.body[S.body.length - 1].w : null, H = S.height.length ? S.height[S.height.length - 1].h : null;
+  const bmi = W && H ? W / Math.pow(H / 100, 2) : null, age = +s.age;
+  let h = `<div class="rank-card">${pogon(ri)}
+    <div class="rank-sub">Unvon ${ri + 1} / ${RANKS.length}</div>
+    <div class="rank-name">${RANKS[ri][0]}${s.name ? ` ${esc(s.name)}` : ""}</div>
+    <div class="id-row"><span>Shaxsiy raqam: <b>№ ${S.pid}</b></span>${s.phone ? `<span>${esc(s.phone)}</span>` : ""}</div>
+    <div class="xpbar"><i style="width:${pct}%"></i></div>
+    <div class="xp-row"><span>${xp.toLocaleString("ru-RU")} XP</span><span>${next ? `${next[0]}: ${(next[1] - xp).toLocaleString("ru-RU")} XP qoldi` : "Eng yuqori unvon!"}</span></div>
+    ${!s.name ? `<button class="sbtn" data-act="tab" data-t="sozlama" style="margin-top:12px">Profilni to'ldirish</button>` : ""}</div>`;
+  h += `<div class="sec"><h2>Bugungi topshiriqlar</h2><span>har biri +50 XP</span></div><div class="box">` + dayChallenges(tk).map(c => {
+    const ok = c[3](tk); return `<div class="chal ${ok ? "done" : ""}"><span class="ci">${c[2]}</span><span class="ct">${c[1]}</span><span class="tl-check" style="${ok ? "background:var(--teal);border-color:var(--teal)" : ""}">${ok ? CHECK.replace("<svg", '<svg style="opacity:1"') : ""}</span></div>`;
+  }).join("") + `<div class="small muted" style="margin-top:8px">XP qanday yig'iladi: kun tartibidagi har bir belgi +5, odat +10, mashq +10, to'liq mashg'ulot +40, dars +40, suv me'yori +15, qad mashqi +20, o'lchov yozish +20.</div></div>`;
+  h += `<div class="sec"><h2>Nishonlar</h2><span>${BADGES.filter(b => b[3]()).length} / ${BADGES.length}</span></div><div class="box badges">` +
+    BADGES.map(b => `<div class="badge ${b[3]() ? "on" : ""}"><div class="b">${b[0]}</div><b>${b[1]}</b><small>${b[2]}</small></div>`).join("") + `</div>`;
+  const hs = streakBy(k => S.days[k] && S.days[k].habits.length >= 4), ls = streakBy(k => (S.learn[k] || []).length > 0);
+  h += `<div class="stats" style="grid-template-columns:1fr 1fr;margin-top:12px"><div class="stat"><small>Odatlar seriyasi</small><div class="big">${hs}</div><small>kun</small></div><div class="stat"><small>O'qish seriyasi</small><div class="big">${ls}</div><small>kun</small></div></div>`;
+  h += `<div class="sec"><h2>Tana o'lchovlari</h2></div><div class="stats">
+    <div class="stat"><small>Bo'y</small><b>${H ? H + " sm" : "—"}</b></div><div class="stat"><small>Vazn</small><b>${W ? W + " kg" : "—"}</b></div>
+    <div class="stat"><small>TVI (BMI)</small><b>${bmi ? bmi.toFixed(1) : "—"}</b></div></div>`;
+  if (bmi) h += `<div class="small muted" style="margin:8px 2px 0">${bmi < 18.5 ? "TVI me'yordan past: mushak massasi uchun kaloriya va oqsilni oshiring." : bmi < 25 ? "TVI me'yorda (18.5–25). Mushak qo'shish uchun yaxshi boshlang'ich holat." : "TVI 25 dan yuqori. Mushakli odamlarda bu ko'rsatkich aldashi mumkin, bel aylanasiga ham qarang."}</div>`;
+  h += `<div class="box" style="margin-top:10px"><b>Vazn</b>${chart(S.body.slice(-20).map(b => ({ d: b.d, v: b.w })), "kg")}
+    <div class="row-in"><input id="bw" type="number" inputmode="decimal" step="0.1" placeholder="Vazn, kg" aria-label="Tana vazni"><button class="btn" data-act="bw">Yozish</button></div></div>
+    <div class="box"><b>Bo'y</b>${chart(S.height.slice(-20).map(b => ({ d: b.d, v: b.h })), "sm")}
+    <div class="row-in"><input id="bh" type="number" inputmode="decimal" step="0.1" placeholder="Bo'y, sm" aria-label="Bo'y"><button class="btn" data-act="bh">Yozish</button></div>
+    <div class="small muted" style="margin-top:8px">Bo'yni ertalab turganingizdan keyin o'lchang: kun davomida umurtqa disklari siqilib, bo'y taxminan 1 sm ga qisqaradi.</div></div>`;
+  const pd = (S.days[tk] || {}).posture;
+  h += `<div class="sec"><h2>Bo'y va qad</h2><span>har kuni 10 daq</span></div><div class="box">
+    <p class="small" style="margin-bottom:10px">${!age ? "Yoshingizni sozlamalarda kiriting, tavsiya aniqroq bo'ladi." : age < 18 ? "Siz hali o'sish davridasiz. Bo'y asosan genetikaga bog'liq, lekin 8–9 soat uyqu, yetarli oqsil, kalsiy va D vitamini hamda muntazam sport tabiiy salohiyatingizga to'liq yetishga yordam beradi." : age <= 21 ? "Suyaklarning o'sish zonalari ko'pincha 18–21 yoshda yopiladi, sizda oz imkoniyat qolgan bo'lishi mumkin. Uyqu, oqsil va sport shu imkoniyatdan foydalanishga yordam beradi. Qad mashqlari esa 1–3 sm gacha ko'rinadigan farq beradi." : "Rostini aytsam: bu yoshda suyaklar uzunasiga o'smaydi va hech qanday mashq buni o'zgartirmaydi. Lekin bukchayishni to'g'rilash va umurtqani bo'shatish orqali 1–3 sm gacha ko'rinadigan farqqa erishish mumkin, bu esa tashqi ko'rinishni ancha o'zgartiradi."}</p>
+    ${POSTURE10.map(id => { const e = WORK.posture.ex.find(x => x.id === id); return `<div class="pmini">${figHTML(e.anim, e.tool)}<div><b>${e.n}</b><div class="small muted">${e.sets} × ${e.reps}</div></div></div>`; }).join("")}
+    <button class="btn" style="width:100%;margin-top:12px${pd ? ";background:var(--teal)" : ""}" data-act="posture">${pd ? "✓ Bugun bajarildi" : "Bajardim (+20 XP)"}</button>
+    <div class="small muted" style="margin-top:8px">Batafsil texnika «Zal» bo'limidagi «Qad va bo'y» kunida.</div></div>`;
+  h += `<div class="sec"><h2>Unvonlar zinapoyasi</h2></div><div class="box"><details><summary class="small" style="cursor:pointer;color:var(--sun2)">Barcha ${RANKS.length} unvonni ko'rish</summary>` +
+    RANKS.map((r, j) => `<div class="ll ${j < ri ? "d" : j === ri ? "n" : ""}"><span>${j + 1}.</span><span style="flex:1">${r[0]}</span><span>${r[1].toLocaleString("ru-RU")} XP</span></div>`).join("") + `</details></div>`;
+  h += `<div class="sec"><h2>Ma'lumotlar</h2></div><div class="box small muted">Barcha yozuvlar faqat shu qurilmada, brauzer xotirasida saqlanadi. Safari ma'lumotlarini tozalasangiz, ular o'chadi.</div>`;
+  $("#v-profil").innerHTML = h;
+}
+
+/* ================= settings ================= */
+function renderSettings() {
+  const s = S.settings;
+  const f = (k, l, sub, type, extra = "") => `<div class="field"><label for="s-${k}">${l}${sub ? `<small>${sub}</small>` : ""}</label><input id="s-${k}" type="${type}" data-set="${k}" value="${esc(s[k])}" ${extra}></div>`;
+  $("#v-sozlama").innerHTML = `<div class="sec" style="margin-top:0"><h2>Sozlamalar</h2></div><div class="box">${f("name", "Ismingiz", "", "text", 'placeholder="Ism"')}${f("phone", "Telefon raqami", "", "tel", 'placeholder="+998"')}${f("age", "Yosh", "", "number", 'min="10" max="99"')}</div>
+    <div class="sec"><h2>Ish grafigi</h2></div><div class="box">
+    ${f("workStart", "Ish boshlanishi", "", "time")}${f("workEnd", "Ish tugashi", "", "time")}
+    ${f("lunchStart", "Obed boshlanishi", "ish ichida", "time")}${f("lunchMin", "Obed davomiyligi", "daqiqa", "number", 'min="15" max="120"')}
+    ${f("commute", "Ishgacha yo'l", "bir tomonga, daqiqa", "number", 'min="0" max="180"')}
+    <div class="field col"><label>Ish kunlari<small>Belgilanmaganlari dam olish kuni</small></label><div class="daypick">${[1, 2, 3, 4, 5, 6, 0].map(i => `<button class="${s.workDays.includes(i) ? "on" : ""}" data-act="wday" data-i="${i}">${DS[i]}</button>`).join("")}</div></div></div>
+    <div class="sec"><h2>Uyqu</h2></div><div class="box">
+    ${f("wake", "Ish kunlari uyg'onish", "", "time")}${f("wakeOff", "Dam kunlari uyg'onish", "farq 1 soatdan oshmagani ma'qul", "time")}
+    ${f("sleepHours", "Uyqu davomiyligi", "soat (7–9 tavsiya)", "number", 'step="0.5" min="5" max="10"')}</div>
+    <div class="sec"><h2>Sport</h2></div><div class="box">
+    <div class="field col"><label>Zal vaqti<small>Avto: ertalab vaqt yetsa ertalab, aks holda kechqurun</small></label><div class="daypick three">${[["auto", "Avto"], ["morning", "Ertalab"], ["evening", "Kechqurun"]].map(([v, l]) => `<button class="${s.gymMode === v ? "on" : ""}" data-act="gmode" data-v="${v}">${l}</button>`).join("")}</div></div>
+    ${f("gymMin", "Mashg'ulot davomiyligi", "daqiqa", "number", 'min="20" max="180"')}${f("gymTravel", "Zalgacha yo'l", "bir tomonga, daqiqa", "number", 'min="0" max="90"')}</div>
+    <div class="sec"><h2>O'qish va suv</h2></div><div class="box">
+    ${f("enMin", "Ingliz tili", "ish kunlari kechqurun, daqiqa", "number", 'min="15" max="120"')}
+    ${f("studyMin", "Dam kunidagi dars", "har bir sessiya, daqiqa", "number", 'min="20" max="180"')}
+    ${f("waterGoal", "Suv me'yori", "stakan (250 ml)", "number", 'min="4" max="16"')}</div>
+    <div class="sec"><h2>Qayta boshlash</h2></div><div class="box"><div class="small muted" style="margin-bottom:10px">Barcha yozuvlar, darslar, vaznlar va sozlamalar o'chadi.</div><button class="btn ghost" data-act="reset">Hammasini o'chirish</button></div>`;
+}
+
+/* ================= render ================= */
+const TABS = [
+  ["bugun", "Bugun", '<circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4"/>'],
+  ["zal", "Zal", '<path d="M6.5 6.5v11M17.5 6.5v11M3 9.5v5M21 9.5v5M6.5 12h11"/>'],
+  ["oqish", "O'qish", '<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5zM4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/>'],
+  ["ovqat", "Ovqat", '<path d="M4 11h16a8 8 0 0 1-16 0zM8 7c0-1.5 1-2 1-3.5M12 7c0-1.5 1-2 1-3.5M16 7c0-1.5 1-2 1-3.5"/>'],
+  ["profil", "Profil", '<circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/>']
+];
+function renderTabs() {
+  $("#tabs").innerHTML = TABS.map(([k, l, p]) => `<button class="${tab === k ? "on" : ""}" data-act="tab" data-t="${k}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${p}</svg>${l}</button>`).join("");
+  $("#gear").classList.toggle("on", tab === "sozlama");
+  document.querySelectorAll(".view").forEach(v => v.classList.toggle("on", v.id === "v-" + tab));
+}
+function renderView() { ({ bugun: renderToday, zal: renderGym, oqish: renderLearn, ovqat: renderFood, profil: renderProfile, sozlama: renderSettings })[tab](); }
+function render() { renderTop(); renderDial(); renderHero(); renderWeek(); renderTabs(); renderView(); }
+function toast(t) { const e = $("#toast"); e.textContent = t; e.classList.add("show"); clearTimeout(toast.t); toast.t = setTimeout(() => e.classList.remove("show"), 1800); }
+
+/* ================= rest timer ================= */
+let tEnd = 0;
+function restSec(r) { const m = String(r).match(/(\d+)/); if (!m) return 60; return /daq/.test(r) ? +m[1] * 60 : +m[1]; }
+function timerTick() {
+  const el = $("#timer"); if (!tEnd) { el.classList.remove("on"); return; }
+  const left = Math.round((tEnd - Date.now()) / 1000);
+  if (left <= 0) { tEnd = 0; el.classList.remove("on"); toast("Dam tugadi, keyingi set! 💪"); try { navigator.vibrate && navigator.vibrate([200, 100, 200]); } catch (e) {} return; }
+  el.classList.add("on"); $("#timerT").textContent = `${Math.floor(left / 60)}:${pad(left % 60)}`;
+}
+
+/* ================= events ================= */
+document.addEventListener("click", e => {
+  const el = e.target.closest("[data-act]"); if (!el) return;
+  const a = el.dataset.act, k = dkey(sel), D = day(k);
+  if (a === "tab") { tab = el.dataset.t; renderTabs(); renderView(); window.scrollTo({ top: 0, behavior: "smooth" }); return; }
+  if (a === "sel") { const [y, m, d] = el.dataset.d.split("-").map(Number); sel = new Date(y, m - 1, d, 12); editShift = false; render(); return; }
+  if (a === "today") { sel = new Date(); render(); return; }
+  if (a === "shiftEdit") { editShift = !editShift; renderToday(); return; }
+  if (a === "exOpen") { openEx[el.dataset.id] = !openEx[el.dataset.id]; renderGym(); return; }
+  if (a === "rest") { tEnd = Date.now() + restSec(el.dataset.r) * 1000; timerTick(); return; }
+  if (a === "tstop") { tEnd = 0; timerTick(); return; }
+  if (a === "ovSave") { const s1 = $("#ovS").value, s2 = $("#ovE").value; if (!s1 || !s2 || toMin(s2) <= toMin(s1)) { toast("Vaqtni to'g'ri kiriting"); return; } S.over[k] = { start: s1, end: s2 }; editShift = false; toast("Grafik o'zgartirildi"); }
+  if (a === "ovOff") { S.over[k] = { off: true }; editShift = false; toast("Bugun dam olish kuni"); }
+  if (a === "ovReset") { delete S.over[k]; editShift = false; toast("Odatiy grafik"); }
+  if (a === "blk") { const b = el.dataset.k; if (b === "sleep") return; D.done = D.done.includes(b) ? D.done.filter(x => x !== b) : [...D.done, b]; }
+  if (a === "hab") { const i = +el.dataset.i; D.habits = D.habits.includes(i) ? D.habits.filter(x => x !== i) : [...D.habits, i]; }
+  if (a === "w+") { D.water++; if (D.water === S.settings.waterGoal) toast("Suv me'yori bajarildi 💧"); }
+  if (a === "w-") D.water = Math.max(0, D.water - 1);
+  if (a === "ex") { D.ex[el.dataset.id] = !D.ex[el.dataset.id]; const wk = workoutFor(sel.getDay()); if (wk.ex.every(x => D.ex[x.id])) toast("Mashg'ulot yakunlandi 💪"); }
+  if (a === "lesson") {
+    const id = el.dataset.c, tk = dkey(new Date()); S.prog[id] = (S.prog[id] || 0) + 1;
+    S.learn[tk] = [...(S.learn[tk] || []), id]; toast(`${COURSES[id].short}: dars yakunlandi 🎓`);
+  }
+  if (a === "wday") { const i = +el.dataset.i, w = S.settings.workDays; S.settings.workDays = w.includes(i) ? w.filter(x => x !== i) : [...w, i]; }
+  if (a === "gmode") S.settings.gymMode = el.dataset.v;
+  if (a === "bw") { const v = parseFloat($("#bw").value); if (!(v > 20 && v < 300)) { toast("Vaznni kg da kiriting"); return; } const tk = dkey(new Date()); S.body = S.body.filter(b => b.d !== tk); S.body.push({ d: tk, w: v }); toast("Vazn yozildi"); }
+  if (a === "bh") { const v = parseFloat($("#bh").value); if (!(v > 100 && v < 250)) { toast("Bo'yni sm da kiriting"); return; } const tk = dkey(new Date()); S.height = S.height.filter(b => b.d !== tk); S.height.push({ d: tk, h: v }); toast("Bo'y yozildi"); }
+  if (a === "posture") { const td = day(dkey(new Date())); td.posture = !td.posture; if (td.posture) toast("Qad mashqi bajarildi +20 XP"); }
+  if (a === "reset") { if (!confirm("Barcha ma'lumotlar o'chirilsinmi?")) return; S = fresh(); toast("Hammasi o'chirildi"); }
+  const nr = rankOf(totalXP()); if (nr > (S.lastRank || 0)) setTimeout(() => toast(`🎖 Yangi unvon: ${RANKS[nr][0]}!`), 400); S.lastRank = nr;
+  save(); render();
+});
+document.addEventListener("change", e => {
+  const el = e.target;
+  if (el.dataset.set) {
+    const k = el.dataset.set; let v = el.value;
+    if (el.type === "number") { v = parseFloat(v); if (isNaN(v)) return; }
+    if (el.type === "time" && !v) return;
+    S.settings[k] = v; save(); renderTop(); renderDial(); renderHero(); renderWeek(); toast("Saqlandi");
+  }
+  if (el.dataset.act === "kg") {
+    const v = parseFloat(el.value), id = el.dataset.id, old = S.weights[id], tk = dkey(new Date());
+    if (isNaN(v)) return;
+    S.weights[id] = { w: v, d: tk, prev: old ? (old.d === tk ? old.prev : old.w) : null };
+    save(); renderGym();
+  }
+});
+
+/* ================= live clock ================= */
+let lastMin = -1, lastDay = dkey(new Date());
+function tick() {
+  const n = new Date();
+  if (dkey(n) !== lastDay) { if (dkey(sel) === lastDay) sel = new Date(); lastDay = dkey(n); render(); }
+  renderHero(); timerTick();
+  if (n.getMinutes() !== lastMin) { lastMin = n.getMinutes(); renderDial(); renderTop(); if (tab === "bugun" && !editShift) renderToday(); }
+}
+document.addEventListener("visibilitychange", () => { if (!document.hidden) tick(); });
+
+/* ================= home-screen icon ================= */
+(function () {
+  try {
+    const c = document.createElement("canvas"); c.width = c.height = 180; const x = c.getContext("2d");
+    const g = x.createLinearGradient(0, 0, 180, 180); g.addColorStop(0, "#17231f"); g.addColorStop(1, "#0b110f");
+    x.fillStyle = g; x.fillRect(0, 0, 180, 180);
+    [["#2c3b45", -.5, .8], ["#d4af6a", .85, 1.3], ["#86b4c4", 1.35, 2.6], ["#d4806c", 2.65, 3.1], ["#c49bbb", 3.15, 3.6], ["#5fbf95", 3.65, 4.4]].forEach(([c2, a, b]) => { x.lineWidth = 18; x.strokeStyle = c2; x.beginPath(); x.arc(90, 90, 56, a - Math.PI / 2, b - Math.PI / 2); x.stroke(); });
+    x.fillStyle = "#ecd49c"; x.beginPath(); x.arc(90 + 56 * Math.cos(1.1 - Math.PI / 2), 90 + 56 * Math.sin(1.1 - Math.PI / 2), 13, 0, 7); x.fill();
+    const url = c.toDataURL("image/png"); $("#touchIcon").href = url;
+    const m = { name: "Ritm", short_name: "Ritm", display: "standalone", background_color: "#0b110f", theme_color: "#0b110f", start_url: ".", icons: [{ src: url, sizes: "180x180", type: "image/png" }] };
+    const l = document.createElement("link"); l.rel = "manifest"; l.href = URL.createObjectURL(new Blob([JSON.stringify(m)], { type: "application/json" })); document.head.appendChild(l);
+  } catch (e) {}
+})();
+
+S.lastRank = S.lastRank ?? rankOf(totalXP());
+render();
+setInterval(tick, 1000);
+requestAnimationFrame(animLoop);
+</script>
+</body>
+</html>
